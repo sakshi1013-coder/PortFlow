@@ -198,6 +198,9 @@ function navigateTo(pageId) {
     el.classList.toggle('active', el.id === `page-${pageId}`);
   });
 
+  // Scroll viewport to top on page switch
+  window.scrollTo({ top: 0, behavior: 'instant' });
+
   // Top nav title update
   const titleMap = {
     dashboard:   'Terminal Operations Dashboard',

@@ -246,8 +246,18 @@
            ══════════════════════════════════════════ -->
       <section class="page active" id="page-dashboard" aria-label="Operations Dashboard">
         
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Operations Dashboard</h2>
+            <p>Live terminal telemetry · Gate bottlenecks · Yard re-handling velocity · Schedule tracking</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-secondary btn-sm" onclick="initDashboardCharts(); if (typeof Toast !== 'undefined') Toast.show('success','Dashboard Updated','Live telemetry and KPI gauges refreshed.');">↻ Refresh Telemetry</button>
+          </div>
+        </div>
+
         <!-- Row 1: Re-handling Gauge & Gate Queue Bar Chart -->
-        <div class="grid-2" style="margin-bottom:var(--s5);">
+        <div class="grid-2" style="margin-bottom:36px;">
           <!-- Card 1: Re-handling Gauge -->
           <div class="card">
             <div class="card-hdr">
@@ -285,39 +295,36 @@
           </div>
         </div>
 
-        <!-- Row 2: Yard View (Block-by-stack) & Alerts Card -->
-        <div class="grid-2" style="margin-bottom:var(--s5);">
-          <!-- Card 3: Yard Block-by-Stack Grid -->
-          <div class="card">
-            <div class="card-hdr">
-              <div class="card-title">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
-                Yard Grid View (Departure-Priority Stacking)
-              </div>
-              <span class="badge badge-info">Live Stacks</span>
+        <!-- Row 2: Yard / Container Overview (Full Width) -->
+        <div class="card" style="margin-bottom:36px;">
+          <div class="card-hdr">
+            <div class="card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+              Yard / Container Overview (Departure-Priority Stacking)
             </div>
-            <div class="card-body">
-              <div id="yard-grid-interactive"></div>
-            </div>
+            <span class="badge badge-info">Live Stacks · Real-time Sync</span>
           </div>
-
-          <!-- Card 4: Active Alerts & Incident Queue -->
-          <div class="card">
-            <div class="card-hdr">
-              <div class="card-title">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
-                Active Operational Alerts
-              </div>
-              <span class="badge badge-danger">5 Alerts Active</span>
-            </div>
-            <div class="card-body">
-              <div id="dashboard-alerts-list" class="alert-list"></div>
-            </div>
+          <div class="card-body">
+            <div id="yard-grid-interactive"></div>
           </div>
         </div>
 
-        <!-- Row 3: Critical Path Diagram & Crashing Simulator Panel -->
-        <div class="card" style="margin-bottom:var(--s5);">
+        <!-- Row 3: Operational Alerts (Full Width) -->
+        <div class="card" style="margin-bottom:36px;">
+          <div class="card-hdr">
+            <div class="card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              Active Operational Alerts & Incident Queue
+            </div>
+            <span class="badge badge-danger">5 Alerts Requiring Attention</span>
+          </div>
+          <div class="card-body">
+            <div id="dashboard-alerts-list" class="alert-list"></div>
+          </div>
+        </div>
+
+        <!-- Row 4: Critical Path Diagram & Crashing Simulator Panel -->
+        <div class="card" style="margin-bottom:36px;">
           <div class="card-hdr">
             <div class="card-title">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h18"/></svg>
@@ -457,8 +464,25 @@
           </div>
         </div>
 
+        <!-- Appointment Summary -->
+        <div class="card" style="margin-bottom:28px;padding:18px 24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--pf-text-muted);letter-spacing:0.06em;">Today's Appointments:</span>
+              <strong style="font-family:var(--f-head);font-size:22px;color:var(--pf-navy);" id="appt-total-summary">142 SLOTS BOOKED</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;font-size:13px;flex-wrap:wrap;">
+              <span class="badge badge-success">88 Completed</span>
+              <span class="badge badge-info">32 Processing / Arrived</span>
+              <span class="badge badge-warning">18 Scheduled</span>
+              <span class="badge badge-danger">4 Delayed</span>
+              <span style="color:var(--pf-text-muted);font-family:var(--f-mono);font-size:12px;">Peak Queue: 71m → Target: &le; 30m</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Slot Timeline -->
-        <div class="card" style="margin-bottom:16px">
+        <div class="card" style="margin-bottom:28px">
           <div class="card-header">
             <div class="card-title">Appointment Slot Utilization – Today</div>
             <div style="display:flex;gap:10px;font-size:11px">
@@ -736,6 +760,22 @@
           </div>
           <div class="page-header-right">
             <button class="btn btn-primary btn-sm" onclick="Toast.show('info','Add Risk','Risk entry form opened.')">+ Add Risk</button>
+          </div>
+        </div>
+
+        <!-- Risk Summary -->
+        <div class="card" style="margin-bottom:28px;padding:18px 24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:18px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--pf-text-muted);letter-spacing:0.06em;">Total Risks Monitored:</span>
+              <strong style="font-family:var(--f-head);font-size:22px;color:var(--pf-navy);">8 IDENTIFIED</strong>
+            </div>
+            <div style="display:flex;align-items:center;gap:16px;font-size:13px;flex-wrap:wrap;">
+              <span class="badge badge-danger">2 High Severity</span>
+              <span class="badge badge-warning">4 Medium Severity</span>
+              <span class="badge badge-success">2 Low Severity</span>
+              <span style="color:var(--pf-text-muted);font-family:var(--f-mono);font-size:12px;">Mitigation Coverage: 100% Active</span>
+            </div>
           </div>
         </div>
 

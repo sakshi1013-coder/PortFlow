@@ -350,9 +350,9 @@ function renderRehandleGauge() {
   const target = PortFlow.data.kpis.targetRehandle;   // 1.25
   const max = 2.0;
 
-  // Geometry: center at (150, 145), radius = 105
+  // Geometry: center at (170, 165), radius = 120
   // Angle 180° = 0.0, 90° = 1.0, 0° = 2.0
-  const cx = 150, cy = 145, r = 105;
+  const cx = 170, cy = 165, r = 120;
 
   function polarToCartesian(angleInDeg) {
     const rad = (angleInDeg * Math.PI) / 180;
@@ -370,46 +370,46 @@ function renderRehandleGauge() {
   const needleDeg = (current / max) * 180; // 162 deg traversed
 
   const svg = `
-    <svg viewBox="0 0 300 175" width="100%" height="100%" class="gauge-container" xmlns="http://www.w3.org/2000/svg">
+    <svg viewBox="0 0 340 210" width="100%" height="100%" class="gauge-container" xmlns="http://www.w3.org/2000/svg">
       <!-- Background Track (Grey) -->
       <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" 
-            fill="none" stroke="var(--pf-border)" stroke-width="18" stroke-linecap="butt"/>
+            fill="none" stroke="var(--pf-border)" stroke-width="20" stroke-linecap="butt"/>
 
       <!-- Safe / Target Zone (Teal #177A68 up to 1.25) -->
       <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${targetPt.x} ${targetPt.y}" 
-            fill="none" stroke="var(--pf-success)" stroke-width="18" stroke-linecap="butt"/>
+            fill="none" stroke="var(--pf-success)" stroke-width="20" stroke-linecap="butt"/>
 
       <!-- Warning / Hazard Zone (#C83B2F from 1.25 to 2.0) -->
       <path d="M ${targetPt.x} ${targetPt.y} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" 
-            fill="none" stroke="var(--pf-danger)" stroke-width="18" stroke-linecap="butt"/>
+            fill="none" stroke="var(--pf-danger)" stroke-width="20" stroke-linecap="butt"/>
 
       <!-- Target Tick Line & Label -->
       <line x1="${targetPt.x}" y1="${targetPt.y - 14}" x2="${targetPt.x}" y2="${targetPt.y + 14}" 
             stroke="var(--pf-navy)" stroke-width="2.5"/>
       <text x="${targetPt.x + 4}" y="${targetPt.y - 18}" 
-            font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="700" fill="var(--pf-text)">TARGET 1.25</text>
+            font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="var(--pf-text)">TARGET 1.25</text>
 
       <!-- Scale Ticks (0.0, 0.5, 1.0, 1.5, 2.0) -->
-      <text x="32" y="162" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="var(--pf-text-muted)">0.0</text>
-      <text x="75" y="65" font-family="'IBM Plex Mono', monospace" font-size="9" fill="var(--pf-text-muted)">0.5</text>
-      <text x="144" y="26" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="var(--pf-text-muted)">1.0</text>
-      <text x="215" y="65" font-family="'IBM Plex Mono', monospace" font-size="9" fill="var(--pf-text-muted)">1.5</text>
-      <text x="250" y="162" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="var(--pf-text-muted)">2.0</text>
+      <text x="36" y="185" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" fill="var(--pf-text-muted)">0.0</text>
+      <text x="80" y="75" font-family="'IBM Plex Mono', monospace" font-size="10" fill="var(--pf-text-muted)">0.5</text>
+      <text x="162" y="32" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" fill="var(--pf-text-muted)">1.0</text>
+      <text x="245" y="75" font-family="'IBM Plex Mono', monospace" font-size="10" fill="var(--pf-text-muted)">1.5</text>
+      <text x="288" y="185" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" fill="var(--pf-text-muted)">2.0</text>
 
       <!-- Needle Group with smooth CSS transform -->
       <g id="dashboard-gauge-needle" style="transform-origin: ${cx}px ${cy}px; transform: rotate(-90deg); transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);">
         <!-- Needle pointer -->
         <polygon points="${cx - 4},${cy} ${cx + 4},${cy} ${cx},${cy - r + 8}" fill="var(--pf-navy)"/>
-        <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 8}" stroke="var(--pf-danger)" stroke-width="2"/>
+        <line x1="${cx}" y1="${cy}" x2="${cx}" y2="${cy - r + 8}" stroke="var(--pf-danger)" stroke-width="2.5"/>
         <!-- Needle Center Pivot -->
-        <circle cx="${cx}" cy="${cy}" r="9" fill="var(--pf-navy)"/>
-        <circle cx="${cx}" cy="${cy}" r="4" fill="var(--pf-warning)"/>
+        <circle cx="${cx}" cy="${cy}" r="10" fill="var(--pf-navy)"/>
+        <circle cx="${cx}" cy="${cy}" r="4.5" fill="var(--pf-warning)"/>
       </g>
 
       <!-- Center Readout with animation -->
-      <text id="dashboard-gauge-val" x="${cx}" y="${cy - 20}" font-family="'IBM Plex Mono', monospace" font-size="28" font-weight="700" 
+      <text id="dashboard-gauge-val" x="${cx}" y="${cy - 24}" font-family="'IBM Plex Mono', monospace" font-size="34" font-weight="700" 
             text-anchor="middle" fill="var(--pf-danger)">0.00</text>
-      <text x="${cx}" y="${cy - 4}" font-family="'Barlow Condensed', sans-serif" font-size="11" font-weight="700" 
+      <text x="${cx}" y="${cy - 6}" font-family="'Barlow Condensed', sans-serif" font-size="12" font-weight="700" 
             text-anchor="middle" fill="var(--pf-text-muted)" letter-spacing="1">MOVES / CONTAINER</text>
     </svg>
   `;
@@ -443,21 +443,21 @@ function renderRehandleGauge() {
   if (diffBox) {
     const diff = (current - target).toFixed(2);
     diffBox.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;">
         <span style="color:var(--pf-text-muted)">Current Velocity</span>
         <span style="font-family:var(--f-mono);font-weight:700;color:var(--pf-danger);">${current.toFixed(2)} moves</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;">
         <span style="color:var(--pf-text-muted)">Target Benchmark</span>
         <span style="font-family:var(--f-mono);font-weight:700;color:var(--pf-success);">${target.toFixed(2)} moves</span>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:12px;border-top:1px dashed var(--pf-border);padding-top:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:13px;border-top:1px dashed var(--pf-border);padding-top:8px;">
         <span style="color:var(--pf-text-muted)">Re-Handling Penalty</span>
         <span style="font-family:var(--f-mono);font-weight:700;color:var(--pf-danger);">+${diff} unproductive lifts</span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(200,59,47,0.08);border:1px solid var(--pf-danger);border-radius:var(--r);font-size:12px;">
-        <span style="font-weight:700;color:var(--pf-danger);">FAIL (${current.toFixed(2)} > ${target.toFixed(2)})</span>
-        <span style="font-size:11px;color:var(--pf-danger);">44% excess reshuffling</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(200,59,47,0.08);border:1px solid var(--pf-danger);border-radius:var(--r);font-size:12.5px;">
+        <span style="font-weight:700;color:var(--pf-danger);">FAIL (${current.toFixed(2)} &gt; ${target.toFixed(2)})</span>
+        <span style="font-size:12px;color:var(--pf-danger);">44% excess reshuffling</span>
       </div>
     `;
   }
@@ -468,7 +468,7 @@ function renderRehandleGauge() {
  * Bars in PortFlow blue (#245D85), bars > 30 min in red (#C83B2F)
  * Dashed target line at 30 min with clear label "Target 30 min"
  * Y-axis clean ticks: 0, 20, 40, 60, 80
- * Hover tooltips
+ * Minimum chart height: 320px
  */
 function renderGateQueueBarChart() {
   const container = document.getElementById('gate-queue-chart');
@@ -479,14 +479,14 @@ function renderGateQueueBarChart() {
   const maxWait = 80;
 
   const width = container.offsetWidth || 560;
-  const height = 180;
-  const padL = 36, padR = 24, padT = 20, padB = 30;
+  const height = 320;
+  const padL = 46, padR = 26, padT = 30, padB = 40;
   const chartW = width - padL - padR;
   const chartH = height - padT - padB;
 
   const barCount = data.length;
   const gap = chartW / barCount;
-  const barW = Math.max(14, gap * 0.65);
+  const barW = Math.max(16, gap * 0.65);
 
   let svg = `<svg viewBox="0 0 ${width} ${height}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">`;
 
@@ -496,15 +496,15 @@ function renderGateQueueBarChart() {
     const y = padT + chartH - (tick / maxWait) * chartH;
     svg += `
       <line x1="${padL}" y1="${y}" x2="${padL + chartW}" y2="${y}" stroke="var(--pf-border)" stroke-width="1"/>
-      <text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="10" fill="var(--pf-text-muted)">${tick}</text>
+      <text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-family="'IBM Plex Mono', monospace" font-size="11" fill="var(--pf-text-muted)">${tick}</text>
     `;
   });
 
   // Target Dashed Line at 30 min
   const targetY = padT + chartH - (target / maxWait) * chartH;
   svg += `
-    <line x1="${padL}" y1="${targetY}" x2="${padL + chartW}" y2="${targetY}" stroke="var(--pf-success)" stroke-width="1.8" stroke-dasharray="6 4"/>
-    <text x="${padL + chartW + 4}" y="${targetY + 4}" font-family="'IBM Plex Mono', monospace" font-size="9.5" font-weight="700" fill="var(--pf-success)">Target 30 min</text>
+    <line x1="${padL}" y1="${targetY}" x2="${padL + chartW}" y2="${targetY}" stroke="var(--pf-success)" stroke-width="2" stroke-dasharray="6 4"/>
+    <text x="${padL + chartW + 4}" y="${targetY + 4}" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" fill="var(--pf-success)">Target 30 min</text>
   `;
 
   // Bars with entrance transition
@@ -517,11 +517,11 @@ function renderGateQueueBarChart() {
 
     svg += `
       <g class="chart-bar-group" data-hour="${d.hour}" data-wait="${d.wait}" data-trucks="${d.trucks}">
-        <rect class="animated-chart-bar" x="${x}" y="${y}" width="${barW}" height="${bh}" rx="3" fill="${barFill}" style="cursor:pointer;transform-origin:${x}px ${padT + chartH}px;animation: bar-grow 0.6s cubic-bezier(0.2,0.8,0.2,1) backwards;animation-delay:${i * 40}ms;">
+        <rect class="animated-chart-bar" x="${x}" y="${y}" width="${barW}" height="${bh}" rx="4" fill="${barFill}" style="cursor:pointer;transform-origin:${x}px ${padT + chartH}px;animation: bar-grow 0.6s cubic-bezier(0.2,0.8,0.2,1) backwards;animation-delay:${i * 40}ms;">
           <title>${d.hour}: ${d.wait} min average queue (${d.trucks} trucks)</title>
         </rect>
-        <text x="${x + barW / 2}" y="${y - 4}" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9" font-weight="700" fill="${isOver ? 'var(--pf-danger)' : 'var(--pf-text-muted)'}">${d.wait}</text>
-        <text x="${x + barW / 2}" y="${padT + chartH + 16}" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="9.5" fill="var(--pf-text-muted)">${d.hour}</text>
+        <text x="${x + barW / 2}" y="${y - 6}" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="11" font-weight="700" fill="${isOver ? 'var(--pf-danger)' : 'var(--pf-text-muted)'}">${d.wait}</text>
+        <text x="${x + barW / 2}" y="${padT + chartH + 18}" text-anchor="middle" font-family="'IBM Plex Mono', monospace" font-size="10.5" fill="var(--pf-text-muted)">${d.hour}</text>
       </g>
     `;
   });

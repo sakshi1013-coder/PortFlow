@@ -126,45 +126,51 @@ window.CraneModule = (() => {
     if (!grid) return;
 
     grid.innerHTML = cranes.map(c => {
-      const isDown = c.status !== 'Operational';
-      const statusBadge = isDown
-        ? (c.status === 'Maintenance' ? 'badge-danger' : 'badge-muted')
-        : 'badge-success';
+      const isOperational = c.status === 'Operational';
+      const isMaint = c.status === 'Maintenance';
+      const isDown = !isOperational;
+      const statusBadge = isOperational
+        ? 'badge-success'
+        : (isMaint ? 'badge-danger' : 'badge-muted');
+      const dotClass = isOperational ? 'green' : (isMaint ? 'red' : 'yellow');
 
       return `
-        <div class="crane-card ${isDown ? 'opacity-60' : ''}">
+        <div class="crane-card hover-lift ${isDown ? 'opacity-70' : ''}">
           <div class="crane-card-top">
             <div>
               <div class="crane-id">${c.id}</div>
-              <div class="crane-status"><span class="badge ${statusBadge}">${c.status}</span></div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:4px">${c.type} &nbsp;·&nbsp; ${c.berthPos}</div>
+              <div class="crane-status" style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+                <span class="dot ${dotClass}"></span>
+                <span class="badge ${statusBadge}">${c.status}</span>
+              </div>
+              <div style="font-size:11px;color:var(--pf-text-muted);margin-top:4px">${c.type} &nbsp;·&nbsp; ${c.berthPos}</div>
             </div>
             <div style="text-align:right">
-              <div style="font-size:22px;font-weight:800;color:${isDown ? 'var(--text-muted)' : 'var(--accent-blue-light)'}">
+              <div style="font-family:var(--f-head);font-size:24px;font-weight:700;color:${isDown ? 'var(--pf-text-muted)' : 'var(--pf-blue)'}">
                 ${isDown ? '—' : c.efficiency + '%'}
               </div>
-              <div style="font-size:10px;color:var(--text-muted)">Efficiency</div>
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--pf-text-muted)">Efficiency</div>
             </div>
           </div>
 
           ${isDown ? `
-            <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;background:rgba(20,30,45,0.5);border-radius:6px">
-              ${c.status === 'Maintenance' ? '🔧 Under Scheduled Maintenance' : '⏸ Standby — Night Shift'}
+            <div style="text-align:center;padding:16px;color:var(--pf-text-muted);font-size:12px;background:var(--pf-surface-alt);border:1px solid var(--pf-border);border-radius:var(--r);margin:10px 0;">
+              ${c.status === 'Maintenance' ? '🔧 Under Scheduled Maintenance' : '⏸ Standby — Night Shift Ready'}
             </div>
           ` : `
-            <div class="crane-metric"><span class="lbl">Container</span><span class="val">${c.container.slice(0,11)}</span></div>
+            <div class="crane-metric"><span class="lbl">Container</span><span class="val font-mono">${c.container.slice(0,11)}</span></div>
             <div class="crane-metric"><span class="lbl">Current Move</span><span class="val">Move #${c.currentMove}</span></div>
-            <div class="crane-metric"><span class="lbl">Next Container</span><span class="val">${c.nextContainer.slice(0,11)}</span></div>
-            <div class="crane-metric"><span class="lbl">Moves/Hour</span><span class="val">${c.movesPerHour}</span></div>
-            <div class="crane-metric"><span class="lbl">Queue Depth</span><span class="val">${c.queueDepth} moves</span></div>
+            <div class="crane-metric"><span class="lbl">Next Container</span><span class="val font-mono">${c.nextContainer.slice(0,11)}</span></div>
+            <div class="crane-metric"><span class="lbl">Moves/Hour</span><span class="val font-mono">${c.movesPerHour}</span></div>
+            <div class="crane-metric"><span class="lbl">Queue Depth</span><span class="val font-mono">${c.queueDepth} moves</span></div>
             <div class="crane-metric"><span class="lbl">Vessel</span><span class="val" style="font-size:11px">${c.vessel}</span></div>
-            <div class="efficiency-bar">
-              <div class="efficiency-fill" style="width:${c.efficiency}%"></div>
+            <div class="efficiency-bar" style="margin-top:10px;">
+              <div class="efficiency-fill" style="width:${c.efficiency}%;background:var(--pf-success);transition:width 0.8s cubic-bezier(0.2,0.8,0.2,1);"></div>
             </div>
           `}
 
-          <div style="margin-top:10px;display:flex;gap:6px">
-            <button class="btn btn-sm btn-secondary" onclick="Toast.show('info','Crane ${c.id}','Detail view opened.')">Details</button>
+          <div style="margin-top:12px;display:flex;gap:6px">
+            <button class="btn btn-sm btn-secondary" onclick="Toast.show('info','Crane ${c.id}','Detail telemetry view opened.')">Details</button>
             ${!isDown ? `<button class="btn btn-sm btn-warning" onclick="CraneModule.pauseCrane('${c.id}')">Pause</button>` : ''}
           </div>
         </div>

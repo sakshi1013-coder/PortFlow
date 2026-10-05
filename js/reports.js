@@ -75,44 +75,81 @@ window.RehandleModule = (() => {
     if (!el) return;
     const diff = (d.current - d.target).toFixed(2);
     el.innerHTML = `
-      <div class="rehandle-metric">
-        <div class="rm-label">Current Re-handling</div>
-        <div class="rm-value" style="color:var(--status-orange)">${d.current.toFixed(2)}</div>
+      <div class="rehandle-metric hover-lift" style="border-top-color:var(--pf-danger);">
+        <div class="rm-label">Current Velocity</div>
+        <div class="rm-value font-mono" id="rehandle-hero-curr" style="color:var(--pf-danger);font-size:36px;">0.00</div>
         <div class="rm-sub">moves per container</div>
       </div>
-      <div class="rehandle-metric">
-        <div class="rm-label">Target Re-handling</div>
-        <div class="rm-value" style="color:var(--status-green)">${d.target.toFixed(2)}</div>
-        <div class="rm-sub">acceptance criterion</div>
+      <div class="rehandle-metric hover-lift" style="border-top-color:var(--pf-success);">
+        <div class="rm-label">Target Benchmark</div>
+        <div class="rm-value font-mono" style="color:var(--pf-success);font-size:36px;">${d.target.toFixed(2)}</div>
+        <div class="rm-sub">acceptance criterion (≤ 1.25)</div>
       </div>
-      <div class="rehandle-metric">
-        <div class="rm-label">Difference</div>
-        <div class="rm-value" style="color:var(--status-red)">+${diff}</div>
-        <div class="rm-sub">above target</div>
+      <div class="rehandle-metric hover-lift" style="border-top-color:var(--pf-warning);">
+        <div class="rm-label">Re-Handling Gap</div>
+        <div class="rm-value font-mono" style="color:var(--pf-warning);font-size:36px;">+${diff}</div>
+        <div class="rm-sub">above target threshold</div>
       </div>
     `;
+
+    // Smooth count-up animation 0 -> 1.80 on entry
+    const numEl = document.getElementById('rehandle-hero-curr');
+    if (numEl) {
+      const duration = 1200;
+      const startTime = performance.now();
+      function step(now) {
+        const p = Math.min((now - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        numEl.textContent = (ease * d.current).toFixed(2);
+        if (p < 1) requestAnimationFrame(step);
+        else numEl.textContent = d.current.toFixed(2);
+      }
+      requestAnimationFrame(step);
+    }
   }
 
   function renderAcceptance(d) {
     const el = document.getElementById('acceptance-panel');
     if (!el) return;
     const pass = d.current <= d.target;
+    const diff = (d.current - d.target).toFixed(2);
     el.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-        <div>
-          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Acceptance Criterion</div>
-          <div style="font-size:15px;font-weight:600;color:var(--text-primary)">Re-handling ≤ ${d.target.toFixed(2)} moves/container</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="badge ${pass ? 'badge-success' : 'badge-danger'}" style="font-size:13px;padding:4px 10px;">
+            ${pass ? '✔ PASS' : '✘ FAIL'}
+          </span>
+          <span style="font-size:15px;font-weight:700;color:${pass ? 'var(--pf-success)' : 'var(--pf-danger)'};">
+            ${pass ? 'Target Met (≤ 1.25 moves/container)' : `+${diff} above target`}
+          </span>
         </div>
-        <div class="acceptance-status ${pass ? 'pass' : 'fail'}">
-          ${pass ? '✔ PASS' : '✘ FAIL'}
+        <div style="display:flex;align-items:center;gap:20px;font-size:13px;color:var(--pf-text-muted);">
+          <span>Current: <strong style="color:var(--pf-navy);font-family:var(--f-mono);">${d.current.toFixed(2)}</strong></span>
+          <span>Target: <strong style="color:var(--pf-success);font-family:var(--f-mono);">${d.target.toFixed(2)}</strong></span>
+          <span>Gap: <strong style="color:var(--pf-danger);font-family:var(--f-mono);">+${diff}</strong></span>
         </div>
       </div>
-      <div style="margin-top:14px;font-size:12px;color:var(--text-muted)">
-        Current performance: <strong style="color:var(--status-orange)">${d.current.toFixed(2)}</strong> moves/container.
-        Improvement required: <strong style="color:var(--status-red)">−${(d.current - d.target).toFixed(2)}</strong> moves/container
-        via yard optimization and departure-priority stacking.
+
+      <!-- Animated Progress Gauge with Target Marker -->
+      <div style="position:relative;margin-top:16px;height:12px;background:var(--pf-surface-alt);border-radius:6px;border:1px solid var(--pf-border);overflow:visible;">
+        <div id="rehandle-strip-fill" style="height:100%;width:0%;background:linear-gradient(90deg, var(--pf-success) 0%, var(--pf-warning) 62.5%, var(--pf-danger) 100%);border-radius:5px;transition:width 1.2s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+        <div id="rehandle-target-tick" style="position:absolute;left:0%;top:-5px;bottom:-5px;width:3px;background:var(--pf-navy);border-radius:2px;transition:left 1s cubic-bezier(0.16, 1, 0.3, 1);z-index:2;">
+          <div style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:var(--pf-navy);color:#fff;font-family:var(--f-mono);font-size:9px;padding:2px 6px;border-radius:3px;white-space:nowrap;font-weight:700;">TARGET 1.25</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;color:var(--pf-text-muted);margin-top:6px;">
+        <span>0.00 moves</span>
+        <span style="color:var(--pf-success);font-weight:700;">1.25 Acceptance Threshold</span>
+        <span>2.00 max</span>
       </div>
     `;
+
+    setTimeout(() => {
+      const fill = document.getElementById('rehandle-strip-fill');
+      const tick = document.getElementById('rehandle-target-tick');
+      if (fill) fill.style.width = `${(d.current / 2.0) * 100}%`;
+      if (tick) tick.style.left = `${(d.target / 2.0) * 100}%`;
+    }, 120);
   }
 
   function renderTrendChart(trend) {
@@ -268,7 +305,30 @@ window.SimulationModule = (() => {
     return { gateQueue, rehandle, craneUtil, yardUtil, apptConflicts };
   }
 
-  function computeAndRenderResults() {
+  let prevRes = null;
+
+  function animateNumericValue(element, start, end, decimals, suffix = '', duration = 280) {
+    if (!element) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      element.textContent = `${end.toFixed(decimals)}${suffix}`;
+      return;
+    }
+    const startTime = performance.now();
+    function step(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3); // cubic ease-out
+      const current = start + (end - start) * ease;
+      element.textContent = `${current.toFixed(decimals)}${suffix}`;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        element.textContent = `${end.toFixed(decimals)}${suffix}`;
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function computeAndRenderResults(isLiveCompute = false) {
     const res = computeResults();
     const el = document.getElementById('sim-results');
     if (!el) return;
@@ -276,43 +336,141 @@ window.SimulationModule = (() => {
     const passRehandle = res.rehandle <= 1.25;
     const passQueue    = res.gateQueue <= 30;
 
-    el.innerHTML = `
-      <div class="sim-result-grid">
-        <div class="sim-result-card">
-          <div class="src-label">Expected Gate Queue</div>
-          <div class="src-val" style="color:${passQueue ? 'var(--status-green)' : 'var(--status-orange)'}">${res.gateQueue} min</div>
-          <div class="src-sub">Target: 30 min &nbsp; ${passQueue ? '✔ PASS' : '✘ Exceeds target'}</div>
-        </div>
-        <div class="sim-result-card">
-          <div class="src-label">Expected Re-handling</div>
-          <div class="src-val" style="color:${passRehandle ? 'var(--status-green)' : 'var(--status-orange)'}">${res.rehandle.toFixed(2)}</div>
-          <div class="src-sub">Target: 1.25 &nbsp; ${passRehandle ? '✔ PASS' : '✘ Exceeds target'}</div>
-        </div>
-        <div class="sim-result-card">
-          <div class="src-label">Crane Utilization</div>
-          <div class="src-val" style="color:${res.craneUtil > 95 ? 'var(--status-orange)' : 'var(--accent-blue)'}">${res.craneUtil}%</div>
-          <div class="src-sub">${res.craneUtil > 95 ? '⚠ Near capacity' : 'Within operational range'}</div>
-        </div>
-        <div class="sim-result-card">
-          <div class="src-label">Yard Utilization</div>
-          <div class="src-val" style="color:${res.yardUtil > 90 ? 'var(--status-orange)' : 'var(--accent-cyan)'}">${res.yardUtil}%</div>
-          <div class="src-sub">${res.yardUtil > 90 ? '⚠ High occupancy' : 'Acceptable'}</div>
-        </div>
-        <div class="sim-result-card" style="grid-column:span 2">
-          <div class="src-label">Appointment Conflicts (estimated)</div>
-          <div class="src-val" style="color:${res.apptConflicts > 5 ? 'var(--status-red)' : 'var(--status-green)'};font-size:32px">${res.apptConflicts}</div>
-          <div class="src-sub">Per shift · ${res.apptConflicts > 5 ? 'Reduce truck demand or increase slot capacity' : 'Within acceptable limits'}</div>
-        </div>
-      </div>
+    const gridExists = document.getElementById('sim-result-grid-container');
 
-      <div style="margin-top:16px;padding:12px 16px;background:rgba(45,125,210,0.08);border:1px solid rgba(45,125,210,0.2);border-radius:8px;font-size:12px;color:var(--text-secondary)">
-        <strong style="color:var(--accent-blue-light)">Simulation Model:</strong>
-        Results are computed from a simplified linear model of terminal operations.
-        Production implementation uses Monte Carlo simulation with 10,000 scenarios.
-      </div>
-    `;
+    if (!gridExists) {
+      el.innerHTML = `
+        <div class="sim-result-grid" id="sim-result-grid-container">
+          <div class="sim-result-card hover-lift">
+            <div class="src-label">Expected Gate Queue</div>
+            <div class="src-val" id="res-gate-val" style="color:${passQueue ? 'var(--pf-success)' : 'var(--pf-warning)'}">${res.gateQueue} min</div>
+            <div class="src-sub" id="res-gate-sub">Target: 30 min &nbsp; ${passQueue ? '✔ PASS' : '✘ Exceeds target'}</div>
+          </div>
+          <div class="sim-result-card hover-lift">
+            <div class="src-label">Expected Re-handling</div>
+            <div class="src-val" id="res-rehandle-val" style="color:${passRehandle ? 'var(--pf-success)' : 'var(--pf-danger)'}">${res.rehandle.toFixed(2)}</div>
+            <div class="src-sub" id="res-rehandle-sub">Target: 1.25 &nbsp; ${passRehandle ? '✔ PASS' : '✘ Exceeds target (+0.55)'}</div>
+          </div>
+          <div class="sim-result-card hover-lift">
+            <div class="src-label">Crane Utilization</div>
+            <div class="src-val" id="res-crane-val" style="color:${res.craneUtil > 95 ? 'var(--pf-warning)' : 'var(--pf-blue)'}">${res.craneUtil}%</div>
+            <div class="src-sub" id="res-crane-sub">${res.craneUtil > 95 ? '⚠ Near capacity' : 'Within operational range'}</div>
+          </div>
+          <div class="sim-result-card hover-lift">
+            <div class="src-label">Yard Utilization</div>
+            <div class="src-val" id="res-yard-val" style="color:${res.yardUtil > 90 ? 'var(--pf-warning)' : 'var(--pf-blue-light)'}">${res.yardUtil}%</div>
+            <div class="src-sub" id="res-yard-sub">${res.yardUtil > 90 ? '⚠ High occupancy' : 'Acceptable'}</div>
+          </div>
+          <div class="sim-result-card hover-lift" style="grid-column:span 2">
+            <div class="src-label">Appointment Conflicts (estimated)</div>
+            <div class="src-val" id="res-appt-val" style="color:${res.apptConflicts > 5 ? 'var(--pf-danger)' : 'var(--pf-success)'};font-size:32px">${res.apptConflicts}</div>
+            <div class="src-sub" id="res-appt-sub">Per shift · ${res.apptConflicts > 5 ? 'Reduce truck demand or increase slot capacity' : 'Within acceptable limits'}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;padding:12px 16px;background:var(--pf-blue-soft);border:1px solid var(--pf-border);border-radius:var(--r);font-size:12px;color:var(--pf-text)">
+          <strong style="color:var(--pf-blue)">Simulation Model:</strong>
+          Results are computed from a calibrated linear model of terminal operations.
+          Production implementation uses Monte Carlo simulation with 10,000 scenarios.
+        </div>
+      `;
+      prevRes = { ...res };
+    } else {
+      // Smoothly update values without resetting cards
+      const prev = prevRes || res;
+
+      const gateValEl = document.getElementById('res-gate-val');
+      const gateSubEl = document.getElementById('res-gate-sub');
+      if (gateValEl) {
+        animateNumericValue(gateValEl, prev.gateQueue, res.gateQueue, 0, ' min');
+        gateValEl.style.color = passQueue ? 'var(--pf-success)' : 'var(--pf-warning)';
+      }
+      if (gateSubEl) {
+        gateSubEl.innerHTML = `Target: 30 min &nbsp; ${passQueue ? '✔ PASS' : '✘ Exceeds target'}`;
+      }
+
+      const rehandleValEl = document.getElementById('res-rehandle-val');
+      const rehandleSubEl = document.getElementById('res-rehandle-sub');
+      if (rehandleValEl) {
+        animateNumericValue(rehandleValEl, prev.rehandle, res.rehandle, 2, '');
+        rehandleValEl.style.color = passRehandle ? 'var(--pf-success)' : 'var(--pf-danger)';
+      }
+      if (rehandleSubEl) {
+        const diff = (res.rehandle - 1.25).toFixed(2);
+        rehandleSubEl.innerHTML = `Target: 1.25 &nbsp; ${passRehandle ? '✔ PASS' : `✘ Exceeds target (+${diff})`}`;
+      }
+
+      const craneValEl = document.getElementById('res-crane-val');
+      const craneSubEl = document.getElementById('res-crane-sub');
+      if (craneValEl) {
+        animateNumericValue(craneValEl, prev.craneUtil, res.craneUtil, 0, '%');
+        craneValEl.style.color = res.craneUtil > 95 ? 'var(--pf-warning)' : 'var(--pf-blue)';
+      }
+      if (craneSubEl) {
+        craneSubEl.textContent = res.craneUtil > 95 ? '⚠ Near capacity' : 'Within operational range';
+      }
+
+      const yardValEl = document.getElementById('res-yard-val');
+      const yardSubEl = document.getElementById('res-yard-sub');
+      if (yardValEl) {
+        animateNumericValue(yardValEl, prev.yardUtil, res.yardUtil, 0, '%');
+        yardValEl.style.color = res.yardUtil > 90 ? 'var(--pf-warning)' : 'var(--pf-blue-light)';
+      }
+      if (yardSubEl) {
+        yardSubEl.textContent = res.yardUtil > 90 ? '⚠ High occupancy' : 'Acceptable';
+      }
+
+      const apptValEl = document.getElementById('res-appt-val');
+      const apptSubEl = document.getElementById('res-appt-sub');
+      if (apptValEl) {
+        animateNumericValue(apptValEl, prev.apptConflicts, res.apptConflicts, 0, '');
+        apptValEl.style.color = res.apptConflicts > 5 ? 'var(--pf-danger)' : 'var(--pf-success)';
+      }
+      if (apptSubEl) {
+        apptSubEl.textContent = `Per shift · ${res.apptConflicts > 5 ? 'Reduce truck demand or increase slot capacity' : 'Within acceptable limits'}`;
+      }
+
+      prevRes = { ...res };
+    }
 
     document.getElementById('btn-save-scenario')?.setAttribute('data-tooltip', `Save current parameters`);
+  }
+
+  function triggerLiveCompute() {
+    const btn = document.getElementById('btn-live-compute');
+    const badge = document.getElementById('sim-live-badge');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border:2px solid var(--pf-blue);border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:4px;"></span> CALCULATING...`;
+    }
+    if (badge) {
+      badge.className = 'badge badge-warning';
+      badge.textContent = 'CALCULATING...';
+    }
+
+    setTimeout(() => {
+      computeAndRenderResults(true);
+      if (btn) {
+        btn.innerHTML = `✔ RESULT UPDATED`;
+        btn.className = 'btn btn-success btn-sm';
+      }
+      if (badge) {
+        badge.className = 'badge badge-success';
+        badge.textContent = 'RESULT UPDATED';
+      }
+
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `⚡ LIVE COMPUTE`;
+          btn.className = 'btn btn-secondary btn-sm';
+        }
+        if (badge) {
+          badge.className = 'badge badge-info';
+          badge.textContent = 'Live compute';
+        }
+      }, 1200);
+    }, 350);
   }
 
   function runMonteCarloSimulation() {
@@ -320,14 +478,14 @@ window.SimulationModule = (() => {
     if (!el) return;
 
     el.innerHTML = `
-      <div style="padding:28px 16px;text-align:center;background:var(--surface);border:1.5px solid var(--blue);border-radius:var(--r);">
-        <div style="font-family:var(--f-head);font-size:18px;font-weight:800;color:var(--blue);text-transform:uppercase;margin-bottom:8px;">
+      <div style="padding:28px 16px;text-align:center;background:var(--pf-surface);border:1.5px solid var(--pf-blue);border-radius:var(--r);box-shadow:var(--shadow-sm);">
+        <div style="font-family:var(--f-head);font-size:18px;font-weight:800;color:var(--pf-navy);text-transform:uppercase;margin-bottom:8px;letter-spacing:0.5px;">
           Executing 10,000 Monte Carlo Scenario Iterations
         </div>
-        <div class="progress-bar" style="height:12px;margin:12px auto;max-width:380px;">
-          <div id="sim-progress-fill" class="progress-fill" style="width:15%;background:var(--blue);transition:width 0.35s ease;"></div>
+        <div class="progress-bar" style="height:12px;margin:12px auto;max-width:380px;background:var(--pf-surface-alt);border:1px solid var(--pf-border);">
+          <div id="sim-progress-fill" class="progress-fill" style="width:15%;background:var(--pf-blue);transition:width 0.35s ease;"></div>
         </div>
-        <div id="sim-iteration-msg" style="font-family:var(--f-mono);font-size:12px;color:var(--text-muted);">
+        <div id="sim-iteration-msg" style="font-family:var(--f-mono);font-size:12px;color:var(--pf-text-muted);">
           Generating stochastic arrival distribution... (2,400 / 10,000)
         </div>
       </div>
@@ -343,7 +501,7 @@ window.SimulationModule = (() => {
     setTimeout(() => {
       const pb = document.getElementById('sim-progress-fill');
       const msg = document.getElementById('sim-iteration-msg');
-      if (pb) { pb.style.width = '100%'; pb.style.background = 'var(--green)'; }
+      if (pb) { pb.style.width = '100%'; pb.style.background = 'var(--pf-success)'; }
       if (msg) msg.textContent = 'Aggregating convergence statistics... (10,000 / 10,000 Complete)';
     }, 900);
 
@@ -355,7 +513,7 @@ window.SimulationModule = (() => {
     }, 1350);
   }
 
-  return { init, runMonteCarloSimulation };
+  return { init, runMonteCarloSimulation, triggerLiveCompute };
 })();
 
 /* ============================================================

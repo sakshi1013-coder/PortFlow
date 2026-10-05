@@ -105,9 +105,32 @@ window.YardModule = (() => {
 
   function renderCell(cell) {
     const shortCtr = cell.container ? cell.container.slice(0, 7) : '';
+    let departure = '—';
+    let riskStatus = 'Normal';
+    let priorityText = 'Normal';
+
+    if (cell.status === 'priority') {
+      departure = '< 24h';
+      priorityText = 'Departure Priority';
+      riskStatus = 'Priority Queue';
+    } else if (cell.status === 'conflict') {
+      departure = '< 12h (Buried Stack)';
+      priorityText = 'Urgent Restack';
+      riskStatus = 'High Risk';
+    } else if (cell.status === 'reserved') {
+      departure = '24–48h Slot Reserved';
+      priorityText = 'Standard Allocation';
+      riskStatus = 'Protected';
+    } else if (cell.status === 'occupied') {
+      departure = '3–5 Days';
+      priorityText = 'Standard Buffer';
+      riskStatus = 'Stable';
+    }
+
     const tooltip = cell.container
-      ? `${cell.id} | ${cell.container} | ${cell.status}`
-      : `${cell.id} | Available`;
+      ? `${cell.id} • ${cell.container} | Dep: ${departure} | Pri: ${priorityText} | Risk: ${riskStatus}`
+      : `${cell.id} • Slot Available`;
+
     return `
       <div class="yard-cell ${cell.status}" data-id="${cell.id}" data-tooltip="${tooltip}">
         <div class="yard-cell-id">${cell.id}</div>
@@ -199,29 +222,84 @@ window.YardModule = (() => {
   function wireButtons() {
     document.getElementById('btn-run-yard-opt')?.addEventListener('click', () => {
       confirmAction('Run Yard Optimization', 'This will re-compute optimal yard allocation using departure priority and minimize unnecessary re-handling. Continue?', () => {
-        Toast.show('info', 'Optimization Running', 'Yard optimization engine started...', 3000);
-        setTimeout(() => Toast.show('success', 'Optimization Complete', 'Plan updated. Conflicts reduced by 38%.', 5000), 3500);
+        Toast.show('info', 'Optimization Running', 'Departure-priority heuristic reorganizing container stacks...', 2500);
+
+        // Add subtle transition scanning animation to cells
+        const cells = document.querySelectorAll('.yard-cell.conflict');
+        cells.forEach(c => {
+          c.style.transition = 'all 0.6s ease';
+          c.style.transform = 'scale(0.92)';
+          c.style.opacity = '0.5';
+        });
+
+        setTimeout(() => {
+          // Resolve conflicts to priority/occupied
+          yardData.blocks.forEach(b => {
+            b.rows.forEach(r => {
+              r.forEach(cell => {
+                if (cell.status === 'conflict') {
+                  cell.status = 'priority';
+                }
+              });
+            });
+          });
+
+          // Re-calculate summary
+          let total = 0, occupied = 0, priority = 0, conflict = 0, reserved = 0;
+          yardData.blocks.forEach(b => b.rows.forEach(r => r.forEach(c => {
+            total++;
+            if (c.status === 'occupied') occupied++;
+            if (c.status === 'priority') priority++;
+            if (c.status === 'conflict') conflict++;
+            if (c.status === 'reserved') reserved++;
+          })));
+          yardData.summary = { total, occupied, priority, conflict, reserved, available: total - occupied - priority - conflict - reserved };
+
+          renderYardBlocks(yardData.blocks);
+          renderYardStats(yardData.summary);
+
+          const newCells = document.querySelectorAll('.yard-cell');
+          newCells.forEach(c => {
+            c.classList.add('fade-in');
+          });
+
+          Toast.show('success', 'Optimization Complete', 'Plan updated. High-risk conflicts resolved by departure-order restack.', 5000);
+        }, 1200);
       });
     });
 
     document.getElementById('btn-simulate-yard')?.addEventListener('click', () => {
-      if (window.navigateTo) window.navigateTo('simulation');
+      Toast.show('info', 'Simulating Plan', 'Executing scenario validation in simulation environment...', 2000);
       setTimeout(() => {
-        if (window.SimulationModule && window.SimulationModule.runMonteCarloSimulation) {
-          window.SimulationModule.runMonteCarloSimulation();
-        }
-      }, 100);
+        if (window.navigateTo) window.navigateTo('simulation');
+        setTimeout(() => {
+          if (window.SimulationModule && window.SimulationModule.runMonteCarloSimulation) {
+            window.SimulationModule.runMonteCarloSimulation();
+          }
+        }, 150);
+      }, 600);
     });
 
     document.getElementById('btn-approve-yard')?.addEventListener('click', () => {
       confirmAction('Approve Yard Plan', 'Approve the current yard plan? This will lock the allocation for the next 8-hour shift.', () => {
-        Toast.show('success', 'Plan Approved', 'Yard plan approved and locked for current shift.', 5000);
+        Toast.show('info', 'Locking Plan', 'Registering approval hash...', 1000);
+        setTimeout(() => {
+          Toast.show('success', 'Plan Approved', 'Yard plan approved and locked for current shift.', 5000);
+          const badge = document.querySelector('#yard-plan-info .badge');
+          if (badge) {
+            badge.className = 'badge badge-success';
+            badge.textContent = 'Locked / Approved';
+          }
+        }, 800);
       });
     });
 
     document.getElementById('btn-publish-yard')?.addEventListener('click', () => {
       confirmAction('Publish Yard Plan', 'Publish yard plan to all crane operators and yard controllers? This action cannot be undone.', () => {
-        Toast.show('success', 'Plan Published', 'Yard plan published to execution layer.', 5000);
+        Toast.show('info', 'Publishing Plan', 'Broadcasting work instructions to RTG/QC fleet...', 1200);
+        setTimeout(() => {
+          Toast.show('success', 'Plan Published', 'Yard plan published to execution layer.', 5000);
+        }, 1400);
       });
     });
   }

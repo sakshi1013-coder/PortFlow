@@ -75,13 +75,15 @@ window.GateModule = (() => {
 
     el.innerHTML = slots.map(s => {
       const pct = Math.round((s.booked / s.capacity) * 100);
-      const fillColor = s.label === 'slot-full' ? 'var(--status-red)' : s.label === 'slot-busy' ? 'var(--status-orange)' : 'var(--status-green)';
+      const fillColor = s.label === 'slot-full'
+        ? 'var(--pf-danger)'
+        : (s.label === 'slot-busy' ? 'var(--pf-warning)' : 'var(--pf-blue)');
       return `
         <div class="appt-slot ${s.label}" data-tooltip="${s.time}: ${s.booked}/${s.capacity} booked">
           <div class="appt-slot-time">${s.time}</div>
           <div class="appt-slot-count">${s.booked}/${s.capacity}</div>
-          <div class="appt-slot-bar" style="background:rgba(30,45,61,0.8)">
-            <div style="height:100%;width:${pct}%;background:${fillColor};border-radius:2px;transition:width 0.4s"></div>
+          <div class="appt-slot-bar" style="background:var(--pf-surface-alt);border:1px solid var(--pf-border);">
+            <div style="height:100%;width:${pct}%;background:${fillColor};border-radius:2px;transition:width 0.4s ease;"></div>
           </div>
         </div>
       `;

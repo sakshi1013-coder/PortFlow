@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body class="dashboard-body">
 
@@ -136,8 +136,14 @@
        TOP NAVIGATION BAR
        ══════════════════════════════════════════ -->
   <header class="topnav" role="banner">
-    <h2 class="topnav-title" id="topnav-page-title">Terminal Operations Dashboard</h2>
-    <span class="env-badge env-plan" id="topnav-env-badge">⬡ Planning Environment</span>
+    <div style="display:flex;align-items:center;gap:var(--s3);">
+      <div style="font-family:var(--f-head);font-size:20px;font-weight:800;letter-spacing:0.06em;color:var(--pf-navy);display:flex;align-items:center;gap:6px;">
+        <span style="color:var(--pf-blue)">PORT</span>FLOW
+      </div>
+      <span class="env-badge env-plan" id="topnav-env-badge">[PLANNING ENVIRONMENT]</span>
+      <span style="color:var(--pf-border);font-weight:300;">|</span>
+      <h2 class="topnav-title" id="topnav-page-title" style="font-size:13.5px;color:var(--pf-text-muted);font-weight:500;margin:0;">Terminal Operations Dashboard</h2>
+    </div>
 
     <div class="topnav-spacer"></div>
 
@@ -156,32 +162,32 @@
   <main class="d-main" id="d-main">
     <div class="page-content">
 
-      <!-- ── FIVE-SYSTEM STATUS BAR (With Failure Simulation Toggle) ── -->
+      <!-- ── FIVE-SYSTEM STATUS BAR (Small status dot + text, consistent green/teal operational status) ── -->
       <div class="sys-bar" role="region" aria-label="Terminal System Health Status">
         <div class="sys-item" id="sys-gate">
           <span class="dot green"></span>
-          <span class="sys-lbl">Gate OCR:</span>
-          <span class="sys-val">ONLINE (Operational)</span>
+          <span class="sys-lbl">Gate OCR</span>
+          <span class="sys-val">ONLINE</span>
         </div>
         <div class="sys-item" id="sys-yard">
           <span class="dot green"></span>
-          <span class="sys-lbl">Yard Stacks:</span>
-          <span class="sys-val">ONLINE (Operational)</span>
+          <span class="sys-lbl">Yard Stack</span>
+          <span class="sys-val">ONLINE</span>
         </div>
         <div class="sys-item" id="sys-cranes">
           <span class="dot green"></span>
-          <span class="sys-lbl">RTG/STS Fleet:</span>
-          <span class="sys-val">ONLINE (6/8 Active)</span>
+          <span class="sys-lbl">RTG/ST</span>
+          <span class="sys-val">6/8 ACTIVE</span>
         </div>
         <div class="sys-item" id="sys-planning">
           <span class="dot green"></span>
-          <span class="sys-lbl">Planning Engine:</span>
-          <span class="sys-val">ONLINE (Operational)</span>
+          <span class="sys-lbl">Planning Engine</span>
+          <span class="sys-val">ONLINE</span>
         </div>
         <div class="sys-item" id="sys-execution">
           <span class="dot green"></span>
-          <span class="sys-lbl">Execution Layer:</span>
-          <span class="sys-val">ONLINE (Operational)</span>
+          <span class="sys-lbl">Execution Layer</span>
+          <span class="sys-val">ONLINE</span>
         </div>
 
         <!-- Failure Simulator Toggle -->
@@ -190,45 +196,45 @@
         </button>
       </div>
 
-      <!-- ── KPI ROW (Equal-height cards, small uppercase label, large mono value, colored top border) ── -->
+      <!-- ── KPI ROW (Equal-height cards, uppercase label, large numbers, subtle hover) ── -->
       <div class="kpi-row" role="region" aria-label="Key Performance Indicators">
-        <div class="kpi-card k-blue">
+        <div class="kpi-card k-blue hover-lift">
           <div class="kpi-lbl">Annual Throughput</div>
           <div class="kpi-val v-blue">1.4M TEU</div>
           <div class="kpi-help">Terminal concession rating</div>
         </div>
 
-        <div class="kpi-card k-red">
+        <div class="kpi-card k-red hover-lift">
           <div class="kpi-lbl">Avg Gate Queue</div>
           <div class="kpi-val v-red">71 min</div>
-          <div class="kpi-help">Baseline (Target &le; 30 min)</div>
+          <div class="kpi-help">Baseline · Target &le; 30 min</div>
         </div>
 
-        <div class="kpi-card k-yellow">
+        <div class="kpi-card k-yellow hover-lift">
           <div class="kpi-lbl">Current Re-handling</div>
           <div class="kpi-val v-yellow">1.80</div>
-          <div class="kpi-help">Moves / container (Target 1.25)</div>
+          <div class="kpi-help">Moves / container · Target 1.25</div>
         </div>
 
-        <div class="kpi-card k-green">
+        <div class="kpi-card k-green hover-lift">
           <div class="kpi-lbl">Target Re-handling</div>
           <div class="kpi-val v-green">1.25</div>
           <div class="kpi-help">Acceptance pass threshold</div>
         </div>
 
-        <div class="kpi-card k-blue">
+        <div class="kpi-card k-blue hover-lift">
           <div class="kpi-lbl">Critical Path (CPM)</div>
           <div class="kpi-val v-blue">31 wks</div>
           <div class="kpi-help">Expected duration (A&rarr;B&rarr;D&rarr;F&rarr;G)</div>
         </div>
 
-        <div class="kpi-card k-gray">
+        <div class="kpi-card k-gray hover-lift">
           <div class="kpi-lbl">Concession Deadline</div>
           <div class="kpi-val">34 wks</div>
           <div class="kpi-help">3-week safety buffer</div>
         </div>
 
-        <div class="kpi-card k-green">
+        <div class="kpi-card k-green hover-lift">
           <div class="kpi-lbl">Schedule Confidence</div>
           <div class="kpi-val v-green">85.9%</div>
           <div class="kpi-help">P(finish &le; 34 wks, &sigma;=2.79)</div>
@@ -696,7 +702,10 @@
             <div class="card">
               <div class="card-header">
                 <div class="card-title">Simulation Results</div>
-                <span class="badge badge-info">Live compute</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <button class="btn btn-secondary btn-sm" id="btn-live-compute" onclick="SimulationModule.triggerLiveCompute()" style="padding:4px 10px;font-size:11px;font-weight:600;">⚡ Live Compute</button>
+                  <span class="badge badge-info" id="sim-live-badge">Live compute</span>
+                </div>
               </div>
               <div id="sim-results"></div>
             </div>

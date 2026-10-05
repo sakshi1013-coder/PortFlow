@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
 <body class="landing-body">
 
@@ -59,18 +59,18 @@
        ══════════════════════════════════════════ -->
   <section class="hero" id="hero">
     <div class="hero-text">
-      <div class="hero-eyebrow">TERMINAL OPTIMIZATION SYSTEM · 1.4M TEU/YR</div>
-      <h1 class="hero-h1">Fewer lifts.<br/><em>Shorter queues.</em></h1>
-      <p class="hero-sub">Yard planning, crane sequencing and gate appointments for a 1.4M TEU terminal. Solves the 71-minute gate queue bottleneck and cuts unproductive re-handling moves.</p>
+      <div class="hero-eyebrow hero-anim-title">TERMINAL OPTIMIZATION SYSTEM · 1.4M TEU/YR</div>
+      <h1 class="hero-h1 hero-anim-title">Fewer lifts.<br/><em>Shorter queues.</em></h1>
+      <p class="hero-sub hero-anim-sub">Yard planning, crane sequencing and gate appointments for a 1.4M TEU terminal. Solves the 71-minute gate queue bottleneck and cuts unproductive re-handling moves.</p>
 
-      <div class="hero-actions">
+      <div class="hero-actions hero-anim-btns">
         <a href="dashboard.html" class="btn btn-primary btn-lg" id="hero-btn-dashboard">Open dashboard →</a>
         <a href="dashboard.html#reports" class="btn btn-secondary btn-lg" id="hero-btn-reports">View project reports</a>
       </div>
     </div>
 
     <!-- Original Inline SVG Illustration of Container Yard -->
-    <div class="hero-illus" aria-label="Container yard illustration with gantry crane, stacks of shipping containers and gate truck">
+    <div class="hero-illus hero-anim-illus" aria-label="Container yard illustration with gantry crane, stacks of shipping containers and gate truck">
       <svg viewBox="0 0 600 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="background:var(--surface);">
         <defs>
           <!-- Hatching & Corrugation pattern -->
@@ -286,24 +286,24 @@
   </section>
 
   <!-- ══════════════════════════════════════════
-       3. STAT STRIP (4 cards, equal height, mono numbers)
+       3. STAT STRIP (Dark navy background, condensed numbers, count-up animation)
        ══════════════════════════════════════════ -->
-  <section class="stats-strip" aria-label="Terminal performance statistics">
+  <section class="stats-strip hero-anim-stats" id="landing-stats" aria-label="Terminal performance statistics">
     <div class="stats-inner">
       <div class="stat-card">
-        <div class="stat-val">1.4M TEU</div>
+        <div class="stat-val stat-count-1">0.0M TEU</div>
         <div class="stat-lbl">ANNUAL CAPACITY (YEARLY THROUGHPUT)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val">71 MIN</div>
+        <div class="stat-val stat-count-2">0 MIN</div>
         <div class="stat-lbl">AVG GATE QUEUE (BASELINE BOTTLENECK)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val">1.80 → 1.25</div>
+        <div class="stat-val stat-count-3">0.00 → 1.25</div>
         <div class="stat-lbl">MOVES PER CONTAINER (TARGET RE-HANDLE)</div>
       </div>
       <div class="stat-card">
-        <div class="stat-val">31 vs 34 WK</div>
+        <div class="stat-val stat-count-4">0 vs 34 WK</div>
         <div class="stat-lbl">CRITICAL PATH VS CONCESSION DEADLINE</div>
       </div>
     </div>
@@ -510,6 +510,69 @@
       const modal = document.getElementById('signin-modal');
       if (modal) modal.style.display = 'none';
     }
+
+    // Count-up animation for KPI strip when entering viewport
+    function runCountUp() {
+      const el1 = document.querySelector('.stat-count-1');
+      const el2 = document.querySelector('.stat-count-2');
+      const el3 = document.querySelector('.stat-count-3');
+      const el4 = document.querySelector('.stat-count-4');
+
+      const duration = 1400;
+      const startTime = performance.now();
+
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+        if (el1) {
+          const v1 = (ease * 1.4).toFixed(1);
+          el1.textContent = `${v1}M TEU`;
+        }
+        if (el2) {
+          const v2 = Math.round(ease * 71);
+          el2.textContent = `${v2} MIN`;
+        }
+        if (el3) {
+          const v3 = (ease * 1.80).toFixed(2);
+          el3.textContent = `${v3} → 1.25`;
+        }
+        if (el4) {
+          const v4 = Math.round(ease * 31);
+          el4.textContent = `${v4} vs 34 WK`;
+        }
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          if (el1) el1.textContent = '1.4M TEU';
+          if (el2) el2.textContent = '71 MIN';
+          if (el3) el3.textContent = '1.80 → 1.25';
+          if (el4) el4.textContent = '31 vs 34 WK';
+        }
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Trigger count-up via IntersectionObserver
+    document.addEventListener('DOMContentLoaded', () => {
+      const statsStrip = document.getElementById('landing-stats');
+      if (statsStrip && 'IntersectionObserver' in window) {
+        let triggered = false;
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !triggered) {
+              triggered = true;
+              runCountUp();
+            }
+          });
+        }, { threshold: 0.25 });
+        obs.observe(statsStrip);
+      } else {
+        runCountUp();
+      }
+    });
   </script>
 </body>
 </html>

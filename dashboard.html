@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PortFlow – Terminal Operations Dashboard</title>
+  <meta name="description" content="PortFlow Container Terminal Yard & Gate Operations Planning and Execution Dashboard. 1.4M TEU/year capacity."/>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="dashboard-body">
+
+  <!-- ══════════════════════════════════════════
+       GLOBAL MODAL
+       ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title"></h3>
+        <button class="modal-close" id="modal-close-btn" aria-label="Close modal" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       TOAST CONTAINER (Top-Right, Auto-dismiss 5s)
+       ══════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- ══════════════════════════════════════════
+       LEFT SIDEBAR (Narrow Rail, Expands on Hover)
+       ══════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <svg class="s-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="2" y="6" width="28" height="20" rx="2" fill="#2F5D80" stroke="#1B2127" stroke-width="2"/>
+        <line x1="8" y1="6" x2="8" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="14" y1="6" x2="14" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="20" y1="6" x2="20" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="26" y1="6" x2="26" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <rect x="11" y="11" width="10" height="10" fill="#F2B705" stroke="#1B2127" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2" fill="#C8402F"/>
+      </svg>
+      <span class="s-logo-text">PORTFLOW</span>
+    </div>
+
+    <!-- Navigation Rail Items -->
+    <nav class="sidebar-nav">
+      <!-- Group 1: Operations -->
+      <div class="nav-group">OPERATIONS</div>
+
+      <a href="#dashboard" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="nav-txt">Dashboard</span>
+      </a>
+
+      <a href="#yard" class="nav-item" data-page="yard" id="nav-yard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        <span class="nav-txt">Yard Planning</span>
+      </a>
+
+      <a href="#crane" class="nav-item" data-page="crane" id="nav-crane">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20M12 20V8M4 8h16M4 8l4-4h8l4 4"/></svg>
+        <span class="nav-txt">Crane Operations</span>
+      </a>
+
+      <a href="#gate" class="nav-item" data-page="gate" id="nav-gate">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <span class="nav-txt">Gate Appointments</span>
+        <span class="nav-alert-dot"></span>
+      </a>
+
+      <!-- Group 2: Planning -->
+      <div class="nav-group">PLANNING</div>
+
+      <a href="#planning" class="nav-item" data-page="planning" id="nav-planning">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        <span class="nav-txt">Planning Engine</span>
+      </a>
+
+      <a href="#execution" class="nav-item" data-page="execution" id="nav-execution">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span class="nav-txt">Execution Monitor</span>
+      </a>
+
+      <a href="#rehandle" class="nav-item" data-page="rehandle" id="nav-rehandle">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span class="nav-txt">Re-handling Analytics</span>
+      </a>
+
+      <a href="#simulation" class="nav-item" data-page="simulation" id="nav-simulation">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2l20 20M2 22L22 2M12 12h.01"/></svg>
+        <span class="nav-txt">Simulation Replay</span>
+      </a>
+
+      <!-- Group 3: Documentation -->
+      <div class="nav-group">DOCUMENTATION</div>
+
+      <a href="#reports" class="nav-item" data-page="reports" id="nav-reports">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span class="nav-txt">Reports</span>
+      </a>
+
+      <a href="#risk" class="nav-item" data-page="risk" id="nav-risk">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="nav-txt">Risk Register</span>
+      </a>
+
+      <a href="#projectplan" class="nav-item" data-page="projectplan" id="nav-projectplan">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="nav-txt">Project Plan</span>
+      </a>
+
+      <a href="#sysdesign" class="nav-item" data-page="sysdesign" id="nav-sysdesign">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="4" cy="19" r="3"/><circle cx="20" cy="19" r="3"/><line x1="12" y1="8" x2="12" y2="14"/><line x1="12" y1="14" x2="4" y2="17"/><line x1="12" y1="14" x2="20" y2="17"/></svg>
+        <span class="nav-txt">System Design</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Bottom Foot -->
+    <div class="sidebar-foot">
+      <div class="user-pill" style="margin:0 var(--s2);">
+        <div class="u-avatar">MR</div>
+        <div class="u-name">M. Rodrigues</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════
+       TOP NAVIGATION BAR
+       ══════════════════════════════════════════ -->
+  <header class="topnav" role="banner">
+    <h2 class="topnav-title" id="topnav-page-title">Terminal Operations Dashboard</h2>
+    <span class="env-badge env-plan" id="topnav-env-badge">⬡ Planning Environment</span>
+
+    <div class="topnav-spacer"></div>
+
+    <div class="live-clock" id="live-clock" aria-label="Terminal live clock">--:--:--</div>
+
+    <button class="tnav-btn" id="theme-toggle-btn" aria-label="Toggle dark and light theme" title="Toggle Theme">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
+
+    <a href="index.html" class="btn btn-secondary btn-sm" style="font-size:11px;">← Public Portal</a>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT CONTAINER
+       ══════════════════════════════════════════ -->
+  <main class="d-main" id="d-main">
+    <div class="page-content">
+
+      <!-- ── FIVE-SYSTEM STATUS BAR (With Failure Simulation Toggle) ── -->
+      <div class="sys-bar" role="region" aria-label="Terminal System Health Status">
+        <div class="sys-item" id="sys-gate">
+          <span class="dot green"></span>
+          <span class="sys-lbl">Gate OCR:</span>
+          <span class="sys-val">ONLINE (Operational)</span>
+        </div>
+        <div class="sys-item" id="sys-yard">
+          <span class="dot green"></span>
+          <span class="sys-lbl">Yard Stacks:</span>
+          <span class="sys-val">ONLINE (Operational)</span>
+        </div>
+        <div class="sys-item" id="sys-cranes">
+          <span class="dot green"></span>
+          <span class="sys-lbl">RTG/STS Fleet:</span>
+          <span class="sys-val">ONLINE (6/8 Active)</span>
+        </div>
+        <div class="sys-item" id="sys-planning">
+          <span class="dot green"></span>
+          <span class="sys-lbl">Planning Engine:</span>
+          <span class="sys-val">ONLINE (Operational)</span>
+        </div>
+        <div class="sys-item" id="sys-execution">
+          <span class="dot green"></span>
+          <span class="sys-lbl">Execution Layer:</span>
+          <span class="sys-val">ONLINE (Operational)</span>
+        </div>
+
+        <!-- Failure Simulator Toggle -->
+        <button class="btn btn-sm btn-ghost sys-failure-toggle" id="simulate-failure-btn">
+          Simulate Planning Engine Failure
+        </button>
+      </div>
+
+      <!-- ── KPI ROW (Equal-height cards, small uppercase label, large mono value, colored top border) ── -->
+      <div class="kpi-row" role="region" aria-label="Key Performance Indicators">
+        <div class="kpi-card k-blue">
+          <div class="kpi-lbl">Annual Throughput</div>
+          <div class="kpi-val v-blue">1.4M TEU</div>
+          <div class="kpi-help">Terminal concession rating</div>
+        </div>
+
+        <div class="kpi-card k-red">
+          <div class="kpi-lbl">Avg Gate Queue</div>
+          <div class="kpi-val v-red">71 min</div>
+          <div class="kpi-help">Baseline (Target &le; 30 min)</div>
+        </div>
+
+        <div class="kpi-card k-yellow">
+          <div class="kpi-lbl">Current Re-handling</div>
+          <div class="kpi-val v-yellow">1.80</div>
+          <div class="kpi-help">Moves / container (Target 1.25)</div>
+        </div>
+
+        <div class="kpi-card k-green">
+          <div class="kpi-lbl">Target Re-handling</div>
+          <div class="kpi-val v-green">1.25</div>
+          <div class="kpi-help">Acceptance pass threshold</div>
+        </div>
+
+        <div class="kpi-card k-blue">
+          <div class="kpi-lbl">Critical Path (CPM)</div>
+          <div class="kpi-val v-blue">31 wks</div>
+          <div class="kpi-help">Expected duration (A&rarr;B&rarr;D&rarr;F&rarr;G)</div>
+        </div>
+
+        <div class="kpi-card k-gray">
+          <div class="kpi-lbl">Concession Deadline</div>
+          <div class="kpi-val">34 wks</div>
+          <div class="kpi-help">3-week safety buffer</div>
+        </div>
+
+        <div class="kpi-card k-green">
+          <div class="kpi-lbl">Schedule Confidence</div>
+          <div class="kpi-val v-green">85.9%</div>
+          <div class="kpi-help">P(finish &le; 34 wks, &sigma;=2.79)</div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════
+           PAGE: DASHBOARD (Active View)
+           ══════════════════════════════════════════ -->
+      <section class="page active" id="page-dashboard" aria-label="Operations Dashboard">
+        
+        <!-- Row 1: Re-handling Gauge & Gate Queue Bar Chart -->
+        <div class="grid-2" style="margin-bottom:var(--s5);">
+          <!-- Card 1: Re-handling Gauge -->
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Re-Handling Performance Gauge
+              </div>
+              <span class="badge badge-danger">FAIL (1.80 &gt; 1.25)</span>
+            </div>
+            <div class="card-body">
+              <div class="gauge-wrap">
+                <div id="rehandle-gauge" style="width:100%;max-width:320px;overflow:visible;"></div>
+              </div>
+              <div id="rehandle-diff" style="margin-top:var(--s3);"></div>
+            </div>
+          </div>
+
+          <!-- Card 2: Gate Queue Hourly Bar Chart -->
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Gate Queue Hourly Distribution
+              </div>
+              <span class="badge badge-warning">71 min peak (Target 30 min)</span>
+            </div>
+            <div class="card-body">
+              <div id="gate-queue-chart" class="chart-box"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--s3);font-size:11px;color:var(--text-muted);border-top:1px solid var(--border-subtle);padding-top:6px;">
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--blue);display:inline-block;"></span> Compliant (Queue &le; 30 min)</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--red);display:inline-block;"></span> Exceeds Limit (&gt; 30 min)</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:16px;height:2px;background:#14665B;display:inline-block;border-top:2px dashed #14665B;"></span> Target Threshold (30 min)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Yard View (Block-by-stack) & Alerts Card -->
+        <div class="grid-2" style="margin-bottom:var(--s5);">
+          <!-- Card 3: Yard Block-by-Stack Grid -->
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><line x1="12" y1="12" x2="12" y2="16"/></svg>
+                Yard Grid View (Departure-Priority Stacking)
+              </div>
+              <span class="badge badge-info">Live Stacks</span>
+            </div>
+            <div class="card-body">
+              <div id="yard-grid-interactive"></div>
+            </div>
+          </div>
+
+          <!-- Card 4: Active Alerts & Incident Queue -->
+          <div class="card">
+            <div class="card-hdr">
+              <div class="card-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                Active Operational Alerts
+              </div>
+              <span class="badge badge-danger">5 Alerts Active</span>
+            </div>
+            <div class="card-body">
+              <div id="dashboard-alerts-list" class="alert-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Critical Path Diagram & Crashing Simulator Panel -->
+        <div class="card" style="margin-bottom:var(--s5);">
+          <div class="card-hdr">
+            <div class="card-title">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M3 12h18"/></svg>
+              Critical Path & Schedule Tracking (PERT/CPM · Activities A–G)
+            </div>
+            <span class="badge badge-primary">31 Weeks Expected vs 34 Weeks Deadline</span>
+          </div>
+          <div class="card-body">
+            <!-- CPM Diagram with Red Nodes & Non-critical Float -->
+            <div id="critical-path-diagram"></div>
+
+            <!-- Crashing Simulator -->
+            <div style="margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--border);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s3);">
+                <h4 style="font-family:var(--f-head);font-size:16px;text-transform:uppercase;">Project Crashing & Trade-Off Simulator</h4>
+                <span style="font-family:var(--f-mono);font-size:11px;color:var(--text-muted);">PENALTY: ₹12 LAKH / WEEK BEYOND WEEK 34</span>
+              </div>
+              <div id="cpm-crash-calculator"></div>
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /page-dashboard -->
+
+      <!-- ══════════════════════════════════════════
+           SUBPAGES (Integrated from Case Study)
+           ══════════════════════════════════════════ -->
+<section class="page" id="page-yard" aria-label="Yard Planning">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Yard Planning</h2>
+            <p>Container block layout · Departure priority · Conflict detection</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-secondary btn-sm" id="btn-simulate-yard">⟲ Simulate Plan</button>
+            <button class="btn btn-primary btn-sm" id="btn-run-yard-opt">▶ Run Optimization</button>
+            <button class="btn btn-success btn-sm" id="btn-approve-yard">✓ Approve Plan</button>
+            <button class="btn btn-warning btn-sm" id="btn-publish-yard">⬆ Publish Plan</button>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="yard-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(30,45,61,0.5);border-color:var(--border)"></div>
+            Available
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(45,125,210,0.2);border-color:rgba(45,125,210,0.4)"></div>
+            Occupied
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(253,126,20,0.15);border-color:rgba(253,126,20,0.5)"></div>
+            Departure Priority
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(220,53,69,0.15);border-color:rgba(220,53,69,0.5)"></div>
+            Conflict
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:rgba(32,201,151,0.12);border-color:rgba(32,201,151,0.4)"></div>
+            Reserved
+          </div>
+        </div>
+
+        <!-- Yard Layout -->
+        <div class="yard-layout">
+          <div>
+            <!-- Plan Info strip -->
+            <div class="card" style="margin-bottom:14px;padding:12px 18px">
+              <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap" id="yard-plan-info"></div>
+            </div>
+            <div class="card">
+              <div class="yard-grid-wrapper" id="yard-blocks"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:14px">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                Yard Statistics
+              </div>
+              <div class="yard-stats" id="yard-stats"></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-crane" aria-label="Crane Operations">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Crane Operations</h2>
+            <p>Fleet status, move sequencing, efficiency monitoring</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-secondary btn-sm" onclick="Toast.show('info','Sequence Refresh','Crane sequences updated.')">↻ Refresh Sequences</button>
+          </div>
+        </div>
+
+        <!-- Fleet Stats -->
+        <div id="fleet-stats"></div>
+
+        <!-- Crane Cards -->
+        <div class="crane-grid" id="crane-grid"></div>
+
+        <!-- Sequencing Timeline -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Crane Sequencing Timeline
+            </div>
+            <div style="display:flex;gap:10px;font-size:11px">
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(45,125,210,0.7);border-radius:2px;display:inline-block"></span>Completed</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(253,126,20,0.75);border-radius:2px;display:inline-block"></span>Current</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:rgba(30,50,80,0.6);border-radius:2px;display:inline-block"></span>Queued</span>
+            </div>
+          </div>
+          <div id="crane-seq-timeline"></div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-gate" aria-label="Gate Appointments">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Gate Appointment Management</h2>
+            <p>Truck slot scheduling · Queue management · Gate operations</p>
+          </div>
+          <div class="page-header-right">
+            <span id="appt-count" class="text-muted" style="font-size:12px"></span>
+            <button class="btn btn-primary btn-sm" id="btn-create-appt">+ Create Appointment</button>
+          </div>
+        </div>
+
+        <!-- Slot Timeline -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div class="card-title">Appointment Slot Utilization – Today</div>
+            <div style="display:flex;gap:10px;font-size:11px">
+              <span style="color:var(--status-green)">■ Open</span>
+              <span style="color:var(--status-orange)">■ Busy (&gt;75%)</span>
+              <span style="color:var(--status-red)">■ Full</span>
+            </div>
+          </div>
+          <div class="appt-timeline" id="appt-timeline"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <input class="filter-input" id="appt-search" placeholder="Search ID, truck, container…" type="text"/>
+          <select class="filter-select" id="appt-filter-status">
+            <option value="">All Statuses</option>
+            <option>Scheduled</option><option>Arrived</option><option>Processing</option>
+            <option>Completed</option><option>Delayed</option><option>Cancelled</option>
+          </select>
+          <select class="filter-select" id="appt-filter-gate">
+            <option value="">All Gates</option>
+            <option>Gate 1</option><option>Gate 2</option><option>Gate 3</option><option>Gate 4</option>
+          </select>
+          <select class="filter-select" id="appt-filter-slot">
+            <option value="">All Slots</option>
+            <option>06:00</option><option>07:00</option><option>08:00</option><option>09:00</option>
+            <option>10:00</option><option>11:00</option><option>12:00</option><option>13:00</option>
+            <option>14:00</option><option>15:00</option><option>16:00</option><option>17:00</option>
+          </select>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="table-wrapper">
+            <table id="appt-table">
+              <thead>
+                <tr>
+                  <th>Appt ID</th><th>Truck ID</th><th>Container</th>
+                  <th>Arrival</th><th>Slot</th><th>Status</th>
+                  <th>Priority</th><th>Gate</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-planning" aria-label="Planning Engine">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Planning Engine</h2>
+            <p>PERT/CPM · Yard allocation · Crane sequencing · Gate slot planning</p>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:16px">
+
+          <!-- Pipeline -->
+          <div class="card" style="grid-column:span 1">
+            <div class="card-title" style="margin-bottom:16px">Planning Pipeline</div>
+            <div id="planning-pipeline"></div>
+          </div>
+
+          <!-- Right panel -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+
+            <!-- Current Run -->
+            <div class="card">
+              <div class="card-title" style="margin-bottom:12px">Current Planning Run</div>
+              <div id="planning-current-run"></div>
+            </div>
+
+            <!-- Run History -->
+            <div class="card">
+              <div class="card-title" style="margin-bottom:12px">Plan History</div>
+              <div id="planning-run-history"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Crashing Analysis -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">PERT Crashing Analysis</div>
+            <span class="badge badge-info">Deadline: 34 weeks · Buffer: 3 weeks</span>
+          </div>
+          <div class="table-wrapper" style="margin-bottom:14px">
+            <table id="crashing-table">
+              <thead>
+                <tr>
+                  <th>Activity</th><th>Name</th><th>Normal</th><th>Crash</th>
+                  <th>Crash Cost</th><th>Liq. Damages</th><th>Decision</th>
+                </tr>
+              </thead>
+              <tbody id="crashing-table-body"></tbody>
+            </table>
+          </div>
+          <div id="crashing-summary"></div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-execution" aria-label="Execution Monitor">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Execution Monitor</h2>
+            <p>Real-time execution layer · Plan vs Actual · Exception management</p>
+          </div>
+          <div class="page-header-right">
+            <span class="badge badge-success" style="font-size:12px">● Live Feed</span>
+          </div>
+        </div>
+
+        <div class="exec-layout">
+
+          <!-- Event Feed -->
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card" style="flex:1">
+              <div class="card-header">
+                <div class="card-title">Live Event Feed</div>
+                <span class="badge badge-success">Streaming</span>
+              </div>
+              <div class="event-feed" id="exec-event-feed"></div>
+            </div>
+
+            <!-- Exceptions -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Active Exceptions</div>
+                <span class="badge badge-danger">3 Open</span>
+              </div>
+              <div id="exec-exceptions"></div>
+            </div>
+          </div>
+
+          <!-- Plan vs Actual -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Plan vs Actual</div>
+              <span class="badge badge-info">Shift Metrics</span>
+            </div>
+            <div id="exec-comparison"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+<section class="page" id="page-rehandle" aria-label="Re-handling Analytics">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Re-handling Analytics</h2>
+            <p>Target: ≤ 1.25 moves/container · Current: 1.80 · Historical replay acceptance testing</p>
+          </div>
+        </div>
+
+        <!-- Hero metrics -->
+        <div class="rehandle-hero" id="rehandle-hero"></div>
+
+        <!-- Acceptance Panel -->
+        <div class="acceptance-panel" id="acceptance-panel"></div>
+
+        <div class="grid-2" style="margin-bottom:16px">
+
+          <!-- Trend Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Historical Trend (8 weeks)</div>
+              <div style="display:flex;gap:10px;font-size:11px">
+                <span style="color:rgba(253,126,20,0.9)">— Current</span>
+                <span style="color:rgba(40,167,69,0.9)">— Target 1.25</span>
+              </div>
+            </div>
+            <div id="rehandle-trend-chart"></div>
+          </div>
+
+          <!-- Causes -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Top Causes of Re-handling</div></div>
+            <div id="rehandle-causes"></div>
+          </div>
+
+        </div>
+
+        <div class="grid-2" style="margin-bottom:16px">
+          <!-- By Block -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Re-handling by Yard Block</div></div>
+            <div id="rehandle-by-block"></div>
+          </div>
+          <!-- By Category -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Re-handling by Container Category</div></div>
+            <div id="rehandle-by-cat"></div>
+          </div>
+        </div>
+
+        <!-- Historical Replay -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Historical Replay Acceptance Test</div>
+            <span class="badge badge-warning">Pending Approval</span>
+          </div>
+          <div id="replay-data"></div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-simulation" aria-label="Simulation">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Scenario Simulation</h2>
+            <p>Adjust parameters to simulate terminal performance outcomes</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-primary btn-sm" id="btn-run-monte-carlo" onclick="SimulationModule.runMonteCarloSimulation()">▶ Run 10,000 Scenario Simulation</button>
+            <button class="btn btn-secondary btn-sm" onclick="SimulationModule.init()">↺ Reset</button>
+            <button class="btn btn-success btn-sm" id="btn-save-scenario" data-tooltip="Save current scenario">Save Scenario</button>
+          </div>
+        </div>
+
+        <div class="sim-layout">
+          <!-- Inputs -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:16px">Simulation Parameters</div>
+            <div id="sim-inputs"></div>
+            <div style="margin-top:12px;font-size:11px;color:var(--text-muted)">
+              Adjust sliders to see real-time impact on terminal metrics. Production model uses Monte Carlo (10,000 iterations).
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Simulation Results</div>
+                <span class="badge badge-info">Live compute</span>
+              </div>
+              <div id="sim-results"></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-reports" aria-label="Reports">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Reports & Documentation</h2>
+            <p>Project documents, technical reports, and compliance records</p>
+          </div>
+        </div>
+
+        <div class="reports-grid" id="reports-grid"></div>
+
+      </section>
+
+<section class="page" id="page-risk" aria-label="Risk Register">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Risk Register</h2>
+            <p>Identified risks · Likelihood × Impact · Mitigation status</p>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-primary btn-sm" onclick="Toast.show('info','Add Risk','Risk entry form opened.')">+ Add Risk</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table id="risk-table">
+              <thead>
+                <tr>
+                  <th>Risk ID</th><th>Risk Description</th><th>Likelihood</th><th>Impact</th>
+                  <th>Severity</th><th>Mitigation Strategy</th><th>Owner</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="risk-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+<section class="page" id="page-projectplan" aria-label="Project Plan">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>Project Plan</h2>
+            <p>WBS · Gantt Chart · Milestones · Academic delivery vs 34-week concession schedule</p>
+          </div>
+        </div>
+
+        <div style="padding:10px 14px;background:rgba(253,126,20,0.06);border:1px solid rgba(253,126,20,0.2);border-radius:8px;margin-bottom:16px;font-size:12px;color:var(--text-secondary)">
+          <strong style="color:var(--status-orange)">⚑ Important:</strong>
+          This Gantt shows the <strong>academic project delivery timeline</strong> (31 weeks expected).
+          The <strong>operational concession deadline</strong> is Week 34 — the hard commitment to the port authority.
+          A 3-week buffer exists on the current critical path.
+        </div>
+
+        <!-- Gantt -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <div class="card-title">Gantt Chart · Critical Path: A→B→D→F→G</div>
+            <div style="display:flex;gap:10px;font-size:11px">
+              <span style="color:rgba(253,126,20,0.8)">■ Critical</span>
+              <span style="color:rgba(45,125,210,0.8)">■ Non-critical</span>
+              <span style="color:var(--accent-blue)">◆ Milestone</span>
+            </div>
+          </div>
+          <div class="gantt-container">
+            <div id="gantt-chart" class="gantt-table"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+
+          <!-- Milestones -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px">Project Milestones</div>
+            <div id="project-milestones"></div>
+          </div>
+
+          <!-- Resource Histogram -->
+          <div class="card">
+            <div class="card-title" style="margin-bottom:12px">Resource Histogram (Team Members)</div>
+            <div id="resource-histogram"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+<section class="page" id="page-sysdesign" aria-label="System Design">
+
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>System Architecture</h2>
+            <p>Planning Engine ↔ Execution Layer separation · API design · Component diagram</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+
+          <!-- Architecture Diagram -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">System Architecture Diagram</div>
+              <span class="badge badge-info">v1.2</span>
+            </div>
+            <div id="arch-diagram"></div>
+          </div>
+
+          <!-- API Contracts -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">API Endpoint Reference</div>
+              <span class="badge badge-muted">REST · JSON</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+              All functions currently return mock data.
+              Replace each data service function with <code style="font-family:var(--font-mono);background:var(--bg-secondary);padding:1px 6px;border-radius:3px">fetch()</code> calls to the corresponding endpoint.
+            </div>
+            <div id="api-contracts"></div>
+          </div>
+
+        </div>
+
+        <!-- Key Design Decisions -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-title" style="margin-bottom:14px">Key Design Decisions</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+            ${[
+              { title: 'Planning / Execution Separation', body: 'The Planning Engine runs offline to compute optimised plans. The Real-Time Execution Layer applies those plans and handles live exceptions independently, preventing plan invalidation during operations.' },
+              { title: 'Departure-Priority Stacking', body: 'Containers are stacked in reverse departure order. Containers leaving soonest are placed on top, reducing unnecessary re-handling moves from 1.80 to target 1.25 moves/container.' },
+              { title: 'Truck Appointment Slots', body: 'Fixed time-window appointments replace walk-in queuing. Controlled arrival rates reduce average gate queue from 71 min to the 30-min operational target.' },
+              { title: 'Historical Replay Acceptance', body: 'The re-handling acceptance criterion is validated using 3 years of historical transaction data. The metric must be ≤ 1.25 moves/container on actual data before go-live sign-off.' },
+            ].map(d => `
+              <div style="padding:14px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)">
+                <div style="font-size:13px;font-weight:600;color:var(--accent-blue-light);margin-bottom:6px">${d.title}</div>
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.6">${d.body}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+      </section>
+
+
+
+    </div><!-- /page-content -->
+  </main><!-- /d-main -->
+
+  <!-- ══════════════════════════════════════════
+       SCRIPTS (App shell + modules)
+       ══════════════════════════════════════════ -->
+  <script src="app.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/yard.js"></script>
+  <script src="js/crane.js"></script>
+  <script src="js/gate.js"></script>
+  <script src="js/planning.js"></script>
+  <script src="js/reports.js"></script>
+
+</body>
+</html>

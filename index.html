@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PortFlow – Container Terminal Yard & Gate Operations</title>
+  <meta name="description" content="PortFlow: Yard planning, crane sequencing and gate appointments for a 1.4M TEU container terminal. Software Engineering Case Study."/>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="landing-body">
+
+  <!-- ══════════════════════════════════════════
+       1. TOP NAVIGATION
+       ══════════════════════════════════════════ -->
+  <header class="l-nav" role="banner">
+    <a href="index.html" class="l-logo" aria-label="PortFlow Home">
+      <svg class="l-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Container Icon -->
+        <rect x="2" y="6" width="28" height="20" rx="2" fill="#2F5D80" stroke="#1B2127" stroke-width="2"/>
+        <line x1="8" y1="6" x2="8" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="14" y1="6" x2="14" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="20" y1="6" x2="20" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <line x1="26" y1="6" x2="26" y2="26" stroke="#1B2127" stroke-width="1.5"/>
+        <rect x="11" y="11" width="10" height="10" fill="#F2B705" stroke="#1B2127" stroke-width="1"/>
+        <circle cx="16" cy="16" r="2" fill="#C8402F"/>
+      </svg>
+      <span class="l-logo-text">PORT<span>FLOW</span></span>
+    </a>
+
+    <nav class="l-nav-links" aria-label="Landing navigation">
+      <a href="#hero">Home</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="l-nav-right">
+      <button class="l-theme-btn" id="theme-toggle-btn" aria-label="Toggle light and dark mode" title="Toggle theme">
+        <svg id="theme-sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
+
+      <button class="btn btn-secondary btn-sm" id="btn-signin-modal" onclick="openSignInModal()">Sign in</button>
+      <a href="dashboard.html" class="btn btn-primary btn-sm">Open dashboard →</a>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       2. HERO SECTION
+       ══════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">TERMINAL OPTIMIZATION SYSTEM · 1.4M TEU/YR</div>
+      <h1 class="hero-h1">Fewer lifts.<br/><em>Shorter queues.</em></h1>
+      <p class="hero-sub">Yard planning, crane sequencing and gate appointments for a 1.4M TEU terminal. Solves the 71-minute gate queue bottleneck and cuts unproductive re-handling moves.</p>
+
+      <div class="hero-actions">
+        <a href="dashboard.html" class="btn btn-primary btn-lg" id="hero-btn-dashboard">Open dashboard →</a>
+        <a href="dashboard.html#reports" class="btn btn-secondary btn-lg" id="hero-btn-reports">View project reports</a>
+      </div>
+    </div>
+
+    <!-- Original Inline SVG Illustration of Container Yard -->
+    <div class="hero-illus" aria-label="Container yard illustration with gantry crane, stacks of shipping containers and gate truck">
+      <svg viewBox="0 0 600 420" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="background:var(--surface);">
+        <defs>
+          <!-- Hatching & Corrugation pattern -->
+          <pattern id="yardGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="20" x2="20" y2="20" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+            <line x1="20" y1="0" x2="20" y2="20" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+          </pattern>
+          <pattern id="corrugation" width="6" height="20" patternUnits="userSpaceOnUse">
+            <line x1="5" y1="0" x2="5" y2="20" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/>
+          </pattern>
+        </defs>
+
+        <!-- Sky / Background -->
+        <rect x="0" y="0" width="600" height="280" fill="#E8EEF3"/>
+        <line x1="0" y1="240" x2="600" y2="240" stroke="#CBD5E1" stroke-width="1"/>
+        <path d="M0 240 Q150 230 300 240 T600 240 L600 280 L0 280 Z" fill="#DDE5EC"/>
+
+        <!-- Distant STS Cranes at Berth -->
+        <g stroke="#94A3B8" stroke-width="1.5" fill="none" opacity="0.45">
+          <line x1="30" y1="240" x2="60" y2="150"/>
+          <line x1="70" y1="240" x2="60" y2="150"/>
+          <line x1="40" y1="150" x2="120" y2="150"/>
+          <line x1="120" y1="240" x2="140" y2="170"/>
+          <line x1="150" y1="240" x2="140" y2="170"/>
+          <line x1="130" y1="170" x2="190" y2="170"/>
+        </g>
+
+        <!-- Concrete Yard Ground -->
+        <rect x="0" y="270" width="600" height="150" fill="#DFE3E7"/>
+        <rect x="0" y="270" width="600" height="150" fill="url(#yardGrid)"/>
+
+        <!-- Yard Markings (Bay lines) -->
+        <line x1="40" y1="390" x2="560" y2="390" stroke="#CBD2D9" stroke-width="2" stroke-dasharray="8 6"/>
+        <line x1="40" y1="310" x2="560" y2="310" stroke="#CBD2D9" stroke-width="1.5"/>
+        <text x="50" y="408" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="#8A9099">BAY 04</text>
+        <text x="180" y="408" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="#8A9099">BAY 05</text>
+        <text x="310" y="408" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="#8A9099">BAY 06</text>
+        <text x="440" y="408" font-family="'IBM Plex Mono', monospace" font-size="10" font-weight="700" fill="#8A9099">BAY 07</text>
+
+        <!-- Crane Rails -->
+        <rect x="30" y="380" width="540" height="4" fill="#64748B"/>
+        <rect x="30" y="268" width="540" height="4" fill="#64748B"/>
+
+        <!-- ── CONTAINER STACKS (Palette: Red #C8402F, Blue #2F5D80, Yellow #F2B705, Green #14665B) ── -->
+
+        <!-- Stack 1 (Left: Bay 04) -->
+        <!-- Tier 1 -->
+        <g transform="translate(60, 335)">
+          <rect width="100" height="34" rx="2" fill="#2F5D80" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">MSKU 74921</text>
+          <rect x="82" y="6" width="12" height="6" fill="#F2B705" stroke="#1B2127" stroke-width="0.5"/>
+        </g>
+        <!-- Tier 2 -->
+        <g transform="translate(60, 298)">
+          <rect width="100" height="34" rx="2" fill="#C8402F" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">CMAU 41088</text>
+          <text x="76" y="21" font-family="'IBM Plex Mono', monospace" font-size="7.5" font-weight="700" fill="#FFFFFF">40HC</text>
+        </g>
+        <!-- Tier 3 -->
+        <g transform="translate(60, 261)">
+          <rect width="100" height="34" rx="2" fill="#14665B" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">OOLU 99231</text>
+        </g>
+
+        <!-- Stack 2 (Middle: Bay 05) -->
+        <!-- Tier 1 -->
+        <g transform="translate(175, 335)">
+          <rect width="100" height="34" rx="2" fill="#14665B" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">HLCU 55829</text>
+        </g>
+        <!-- Tier 2 -->
+        <g transform="translate(175, 298)">
+          <rect width="100" height="34" rx="2" fill="#2F5D80" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">COSU 88310</text>
+        </g>
+
+        <!-- Stack 3 (Right: Bay 06) -->
+        <!-- Tier 1 -->
+        <g transform="translate(290, 335)">
+          <rect width="100" height="34" rx="2" fill="#F2B705" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#1B2127">TGHU 60192</text>
+        </g>
+        <!-- Tier 2 -->
+        <g transform="translate(290, 298)">
+          <rect width="100" height="34" rx="2" fill="#14665B" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">SUDU 32910</text>
+        </g>
+        <!-- Tier 3 -->
+        <g transform="translate(290, 261)">
+          <rect width="100" height="34" rx="2" fill="#C8402F" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">MEDU 87102</text>
+        </g>
+
+        <!-- ── ANIMATED MOVING CONTAINER BEING LIFTED ── -->
+        <g class="ctr-moving" transform="translate(175, 261)">
+          <animateTransform attributeName="transform" type="translate"
+            values="175,261; 175,190; 290,190; 290,225; 290,190; 175,190; 175,261"
+            keyTimes="0; 0.2; 0.45; 0.6; 0.75; 0.9; 1"
+            dur="9s" repeatCount="indefinite"/>
+          <rect width="100" height="34" rx="2" fill="#C8402F" stroke="#1B2127" stroke-width="1.5"/>
+          <rect width="100" height="34" fill="url(#corrugation)"/>
+          <text x="6" y="21" font-family="'IBM Plex Mono', monospace" font-size="8.5" font-weight="700" fill="#FFFFFF">PF-MOV 108</text>
+          <!-- Corner castings -->
+          <rect x="2" y="2" width="6" height="6" fill="#1B2127"/>
+          <rect x="92" y="2" width="6" height="6" fill="#1B2127"/>
+        </g>
+
+        <!-- ── RUBBER-TYRED GANTRY CRANE (RTG) ── -->
+        <g id="gantry-crane">
+          <!-- Left Leg & Wheels -->
+          <path d="M125 100 L140 370 L158 370 L145 100 Z" fill="#F2B705" stroke="#1B2127" stroke-width="2"/>
+          <circle cx="140" cy="376" r="8" fill="#1B2127"/>
+          <circle cx="156" cy="376" r="8" fill="#1B2127"/>
+          <rect x="132" y="374" width="32" height="4" fill="#64748B"/>
+
+          <!-- Right Leg & Wheels -->
+          <path d="M435 100 L420 370 L402 370 L415 100 Z" fill="#F2B705" stroke="#1B2127" stroke-width="2"/>
+          <circle cx="408" cy="376" r="8" fill="#1B2127"/>
+          <circle cx="424" cy="376" r="8" fill="#1B2127"/>
+          <rect x="400" y="374" width="32" height="4" fill="#64748B"/>
+
+          <!-- Top Cross Girder -->
+          <rect x="110" y="80" width="350" height="26" rx="2" fill="#F2B705" stroke="#1B2127" stroke-width="2"/>
+          <!-- Hazard Stripes on Girder Ends -->
+          <g transform="translate(112, 82)">
+            <rect width="24" height="22" fill="#1B2127"/>
+            <polygon points="0,0 8,0 0,22" fill="#F2B705"/>
+            <polygon points="12,0 20,0 0,22 0,22" fill="#F2B705"/>
+            <polygon points="24,6 24,14 10,22 2,22" fill="#F2B705"/>
+          </g>
+          <g transform="translate(434, 82)">
+            <rect width="24" height="22" fill="#1B2127"/>
+            <polygon points="0,0 8,0 0,22" fill="#F2B705"/>
+            <polygon points="12,0 20,0 0,22 0,22" fill="#F2B705"/>
+            <polygon points="24,6 24,14 10,22 2,22" fill="#F2B705"/>
+          </g>
+          <text x="285" y="98" font-family="'Barlow Condensed', sans-serif" font-size="14" font-weight="800" fill="#1B2127" text-anchor="middle" letter-spacing="1">RTG-04 · PORTFLOW AUTOMATION</text>
+
+          <!-- Trolley -->
+          <g transform="translate(245, 106)">
+            <animateTransform attributeName="transform" type="translate"
+              values="245,106; 295,106; 245,106"
+              dur="9s" repeatCount="indefinite"/>
+            <rect width="70" height="18" rx="2" fill="#1B2127"/>
+            <rect x="10" y="4" width="14" height="10" fill="#F2B705"/>
+            <rect x="52" y="5" width="8" height="8" rx="1" fill="#C8402F"/>
+
+            <!-- Cables & Spreader Hook Group with Sway Animation -->
+            <g class="crane-hook-grp">
+              <animateTransform attributeName="transform" type="translate"
+                values="0,0; 0,16; 0,0"
+                dur="4.5s" repeatCount="indefinite"/>
+              <line x1="16" y1="18" x2="16" y2="82" stroke="#1B2127" stroke-width="1.5" stroke-dasharray="2 1"/>
+              <line x1="54" y1="18" x2="54" y2="82" stroke="#1B2127" stroke-width="1.5" stroke-dasharray="2 1"/>
+              <!-- Spreader Bar -->
+              <rect x="0" y="82" width="70" height="10" rx="1" fill="#F2B705" stroke="#1B2127" stroke-width="1.5"/>
+              <!-- Twistlocks -->
+              <rect x="2" y="92" width="6" height="4" fill="#C8402F"/>
+              <rect x="62" y="92" width="6" height="4" fill="#C8402F"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- ── TERMINAL TRUCK AT GATE LANE (Right side) ── -->
+        <g id="gate-truck" transform="translate(420, 310)">
+          <!-- Gate Barrier Arm (Red/Yellow hazard stripes) -->
+          <g transform="translate(25, -20)">
+            <rect x="0" y="0" width="8" height="50" fill="#1B2127"/>
+            <rect x="-4" y="10" width="16" height="12" rx="2" fill="#F2B705"/>
+            <circle cx="4" cy="16" r="3" fill="#14665B"/>
+            <!-- Boom barrier up & down rotation animation -->
+            <g>
+              <animateTransform attributeName="transform" type="rotate"
+                values="-32 4 16; 0 4 16; 0 4 16; -32 4 16"
+                keyTimes="0; 0.35; 0.65; 1"
+                dur="6s" repeatCount="indefinite"/>
+              <rect x="4" y="14" width="75" height="5" fill="#C8402F" stroke="#1B2127" stroke-width="1"/>
+            </g>
+          </g>
+
+          <!-- Truck Chassis -->
+          <rect x="35" y="42" width="130" height="6" fill="#1B2127"/>
+          <!-- Wheels -->
+          <circle cx="55" cy="54" r="8" fill="#1B2127"/>
+          <circle cx="72" cy="54" r="8" fill="#1B2127"/>
+          <circle cx="140" cy="54" r="8" fill="#1B2127"/>
+          <circle cx="156" cy="54" r="8" fill="#1B2127"/>
+
+          <!-- Truck Container on Chassis -->
+          <g transform="translate(38, 12)">
+            <rect width="90" height="30" rx="2" fill="#2F5D80" stroke="#1B2127" stroke-width="1.5"/>
+            <rect width="90" height="30" fill="url(#corrugation)"/>
+            <text x="6" y="18" font-family="'IBM Plex Mono', monospace" font-size="7.5" font-weight="700" fill="#FFFFFF">TRK-9801</text>
+          </g>
+
+          <!-- Driver Cab -->
+          <path d="M128 42 L128 16 L150 16 L164 28 L164 42 Z" fill="#F2B705" stroke="#1B2127" stroke-width="1.5"/>
+          <polygon points="144,19 160,28 144,28" fill="#2F5D80" stroke="#1B2127" stroke-width="1"/>
+          <rect x="160" y="32" width="5" height="4" fill="#F2B705" stroke="#1B2127" stroke-width="0.5"/>
+          <!-- Exhaust stack -->
+          <rect x="129" y="4" width="3" height="14" fill="#64748B"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       3. STAT STRIP (4 cards, equal height, mono numbers)
+       ══════════════════════════════════════════ -->
+  <section class="stats-strip" aria-label="Terminal performance statistics">
+    <div class="stats-inner">
+      <div class="stat-card">
+        <div class="stat-val">1.4M TEU</div>
+        <div class="stat-lbl">ANNUAL CAPACITY (YEARLY THROUGHPUT)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">71 MIN</div>
+        <div class="stat-lbl">AVG GATE QUEUE (BASELINE BOTTLENECK)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">1.80 → 1.25</div>
+        <div class="stat-lbl">MOVES PER CONTAINER (TARGET RE-HANDLE)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">31 vs 34 WK</div>
+        <div class="stat-lbl">CRITICAL PATH VS CONCESSION DEADLINE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       4. PLATFORM CAPABILITIES (6 cards grid)
+       ══════════════════════════════════════════ -->
+  <section class="capabilities" id="capabilities">
+    <div class="section-eyebrow">CORE ARCHITECTURE · HIGH THROUGHPUT</div>
+    <h2 class="section-h2">Platform Capabilities</h2>
+    <p class="section-desc">Designed to address gate gridlock, yard reshuffles, and crane deadhead travel for container terminals handling over 1.4 million TEU annually.</p>
+
+    <div class="cap-grid">
+      <!-- Card 1 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          <line x1="7" y1="7" x2="7" y2="13"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="17" y1="7" x2="17" y2="13"/>
+        </svg>
+        <h3 class="cap-title">Yard Allocation by Departure Order</h3>
+        <p class="cap-desc">Stacks outbound containers in reverse departure order so top containers leave first. Eliminates unproductive bottom-container entrapment and drops re-handling to the 1.25 target.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <h3 class="cap-title">Crane Sequencing & Twin-Lift</h3>
+        <p class="cap-desc">Schedules dual-cycling and spreader trajectories across RTG and STS cranes, minimizing unladen spreader moves and boosting berth productivity past 30 moves/crane-hour.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <h3 class="cap-title">Gate Slot Appointments</h3>
+        <p class="cap-desc">Replaces walk-in queuing with dynamic TAS booking windows and OCR optical lane clearance. Flattens the 71-minute queue down to the strict 30-minute operational threshold.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/>
+          <line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
+        </svg>
+        <h3 class="cap-title">Planning / Execution Separation</h3>
+        <p class="cap-desc">Isolates complex solver engines from execution telemetry. Even if the optimization engine reboots, yard cranes continue uninterrupted from published local cache plans.</p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="5 3 19 12 5 21 5 3"/>
+        </svg>
+        <h3 class="cap-title">Historical Replay Testing</h3>
+        <p class="cap-desc">Validates scheduling algorithms against 3 full years of terminal execution logs (1.4M TEU/yr) to guarantee regression-free releases before publishing to live yard cranes.</p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="cap-card">
+        <svg class="cap-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <h3 class="cap-title">Risk & Schedule Tracking</h3>
+        <p class="cap-desc">Continuous PERT/CPM analysis across Activities A–G. Delivers 85.9% probability of beating the 34-week deadline and calculates optimal crash costs against ₹12L/week penalties.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       5. HOW IT WORKS (Horizontal strip)
+       ══════════════════════════════════════════ -->
+  <section class="how-section" id="how-it-works" aria-label="How PortFlow works">
+    <div class="how-inner">
+      <div class="section-eyebrow">FOUR-STAGE WORKFLOW ENGINE</div>
+      <h2 class="section-h2">How It Works</h2>
+      <p class="section-desc">From voyage manifest publication to real-time crane execution and telemetry verification.</p>
+
+      <div class="how-strip">
+        <div class="how-step">
+          <div class="how-num">01</div>
+          <h3 class="how-title">Plan</h3>
+          <p class="how-desc">Yard allocation algorithms assign blocks and slots based on container ETD, weight classes, and departure vessel sequence.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-num">02</div>
+          <h3 class="how-title">Publish</h3>
+          <p class="how-desc">Published yard work orders and gate appointments are pushed to the resilient execution cache with cryptographic checksums.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-num">03</div>
+          <h3 class="how-title">Execute</h3>
+          <p class="how-desc">Real-time crane onboard units and gate OCR terminals execute lift orders with zero round-trip dependency on planning engines.</p>
+        </div>
+
+        <div class="how-step">
+          <div class="how-num">04</div>
+          <h3 class="how-title">Measure</h3>
+          <p class="how-desc">Telemetry feeds continuous re-handle calculations and queue duration analytics back into the terminal KPI dashboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       6. ABOUT & CONTACT
+       ══════════════════════════════════════════ -->
+  <section class="capabilities" id="about" style="border-top:1px solid var(--border);">
+    <div class="grid-2">
+      <div>
+        <div class="section-eyebrow">ACADEMIC & INDUSTRY CONTEXT</div>
+        <h2 class="section-h2">Project Architecture</h2>
+        <p class="section-desc">PortFlow is engineered as a case study for Container Terminal Yard & Gate Operations, tackling the classic maritime bottleneck of 71-minute gate queues and 1.80 re-handling moves per container.</p>
+        <div style="font-family:var(--f-mono);font-size:12px;color:var(--text-muted);display:flex;flex-direction:column;gap:6px;">
+          <div>CONCESSION CAPACITY: 1,400,000 TEU / YEAR</div>
+          <div>ESTIMATED DURATION: 31 WEEKS (CRITICAL PATH A→B→D→F→G)</div>
+          <div>ACCEPTANCE THRESHOLD: RE-HANDLE &le; 1.25 MOVES / CONTAINER</div>
+        </div>
+      </div>
+      <div id="contact" style="background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:var(--r);padding:var(--s6);">
+        <h3 style="font-family:var(--f-head);font-size:18px;text-transform:uppercase;margin-bottom:var(--s2);">Terminal Operations Contact</h3>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:var(--s4);">Container Terminal Management & Project Planning Division</p>
+        <div style="display:flex;flex-direction:column;gap:var(--s2);font-size:13px;">
+          <div><strong>Course:</strong> Software Engineering & Project Management</div>
+          <div><strong>Cohort:</strong> B.Tech CSE 2025-29</div>
+          <div><strong>System Role:</strong> Master Terminal Planner / Systems Engineer</div>
+          <div><strong>Status:</strong> Ready for Evaluation & Production Simulation</div>
+        </div>
+        <div style="margin-top:var(--s4);">
+          <a href="dashboard.html" class="btn btn-primary btn-sm">Enter Operational Dashboard →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       7. FOOTER
+       ══════════════════════════════════════════ -->
+  <footer class="l-footer" role="contentinfo">
+    <div class="l-footer-inner">
+      <div class="l-footer-logo">PORTFLOW · TERMINAL OPERATIONS</div>
+      <div>B.Tech CSE 2025-29 · Software Engineering & Project Management Case Study</div>
+      <div>&copy; 2026 PortFlow Systems. In-memory execution environment.</div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════
+       SIGN IN MODAL
+       ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="signin-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:999;align-items:center;justify-content:center;">
+    <div style="background:var(--surface);border:2px solid var(--border);border-top:4px solid var(--blue);border-radius:var(--r);max-width:420px;width:90%;padding:var(--s6);box-shadow:var(--shadow-md);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s4);">
+        <h3 style="font-family:var(--f-head);font-size:20px;text-transform:uppercase;color:var(--text);">Terminal Sign In</h3>
+        <button onclick="closeSignInModal()" style="font-size:18px;cursor:pointer;color:var(--text-muted);" aria-label="Close dialog">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:var(--s4);">Log in as an authenticated terminal operator or planner to access live yard and crane telemetry.</p>
+      <div style="display:flex;flex-direction:column;gap:var(--s3);margin-bottom:var(--s5);">
+        <div>
+          <label style="display:block;font-size:11px;font-family:var(--f-mono);font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Operator ID</label>
+          <input type="text" value="PLANNER-MR-04" readonly style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--f-mono);font-size:13px;background:var(--surface-2);color:var(--text);"/>
+        </div>
+        <div>
+          <label style="display:block;font-size:11px;font-family:var(--f-mono);font-weight:700;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px;">Terminal Clearance</label>
+          <input type="text" value="Level 4 · Yard Planning & Dispatch" readonly style="width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--f-mono);font-size:13px;background:var(--surface-2);color:var(--text);"/>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:var(--s2);">
+        <button class="btn btn-secondary" onclick="closeSignInModal()">Cancel</button>
+        <a href="dashboard.html" class="btn btn-primary">Enter Dashboard →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script for Theme Toggle & Modal -->
+  <script>
+    // Theme initialization
+    const savedTheme = localStorage.getItem('portflow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('portflow_theme', next);
+      });
+    }
+
+    function openSignInModal() {
+      const modal = document.getElementById('signin-modal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeSignInModal() {
+      const modal = document.getElementById('signin-modal');
+      if (modal) modal.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
